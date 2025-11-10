@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: food-transparency-portal
+  labels:
+    name: food-transparency-portal
+    app: food-transparency-portal

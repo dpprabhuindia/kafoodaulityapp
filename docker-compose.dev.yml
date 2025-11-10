@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # Food Transparency Portal - Development
+  food-transparency-portal-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: food-transparency-portal-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source code for hot reloading
+      - .:/app
+      - /app/node_modules
+      # Mount inspection photos directory
+      - inspection_photos_dev:/app/public/inspectPhotos
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - FAST_REFRESH=true
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    networks:
+      - food-portal-dev-network
+
+volumes:
+  inspection_photos_dev:
+    driver: local
+
+networks:
+  food-portal-dev-network:
+    driver: bridge

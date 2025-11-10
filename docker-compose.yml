@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # Food Transparency Portal - Frontend
+  food-transparency-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: food-transparency-portal
+    ports:
+      - "3000:80"
+    volumes:
+      # Mount inspection photos directory for persistence
+      - inspection_photos:/usr/share/nginx/html/inspectPhotos
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - food-portal-network
+
+  # Optional: Add a backend API service (uncomment when needed)
+  # food-portal-api:
+  #   image: node:18-alpine
+  #   container_name: food-portal-api
+  #   working_dir: /app
+  #   volumes:
+  #     - ./api:/app
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     - NODE_ENV=production
+  #     - PORT=3001
+  #   command: ["npm", "start"]
+  #   restart: unless-stopped
+  #   networks:
+  #     - food-portal-network
+  #   depends_on:
+  #     - database
+
+  # Optional: Add a database service (uncomment when needed)
+  # database:
+  #   image: postgres:15-alpine
+  #   container_name: food-portal-db
+  #   environment:
+  #     POSTGRES_DB: food_transparency
+  #     POSTGRES_USER: portal_user
+  #     POSTGRES_PASSWORD: secure_password_123
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #     - ./database/init:/docker-entrypoint-initdb.d
+  #   ports:
+  #     - "5432:5432"
+  #   restart: unless-stopped
+  #   networks:
+  #     - food-portal-network
+
+  # Optional: Add Redis for caching (uncomment when needed)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: food-portal-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   restart: unless-stopped
+  #   networks:
+  #     - food-portal-network
+
+volumes:
+  inspection_photos:
+    driver: local
+  # postgres_data:
+  #   driver: local
+  # redis_data:
+  #   driver: local
+
+networks:
+  food-portal-network:
+    driver: bridge

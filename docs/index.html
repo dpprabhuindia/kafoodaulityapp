@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Transparency Portal - User Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+            color: #333;
+            background: #ffffff;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .credentials-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .credentials-table th,
+        .credentials-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .credentials-table th {
+            background: #667eea;
+            color: white;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .alert-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Food Transparency Portal</h1>
+            <p>Complete User Guide - Karnataka Government School Food Safety System</p>
+        </div>
+
+        <div class="section">
+            <h2>🚀 Getting Started</h2>
+            <h3>Login Credentials</h3>
+            <table class="credentials-table">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Access Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Administrator</strong></td>
+                        <td><code>admin</code></td>
+                        <td><code>admin123</code></td>
+                        <td>Full system access + Portal settings</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Senior Auditor</strong></td>
+                        <td><code>auditor1</code></td>
+                        <td><code>audit123</code></td>
+                        <td>Inspections + Reports</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Food Safety Officer</strong></td>
+                        <td><code>officer1</code></td>
+                        <td><code>officer123</code></td>
+                        <td>Schools + Safety programs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Report Viewer</strong></td>
+                        <td><code>viewer1</code></td>
+                        <td><code>view123</code></td>
+                        <td>Read-only access</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>👥 User Roles & Access</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🔑 Administrator</h4>
+                    <ul>
+                        <li>Portal logo customization</li>
+                        <li>System configuration</li>
+                        <li>All inspection features</li>
+                        <li>User management</li>
+                        <li>Advanced reporting</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4>🔍 Senior Auditor</h4>
+                    <ul>
+                        <li>Create inspections</li>
+                        <li>Upload inspection photos</li>
+                        <li>Generate reports</li>
+                        <li>View school details</li>
+                        <li>Access safety programs</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4>👨‍💼 Food Safety Officer</h4>
+                    <ul>
+                        <li>Manage school information</li>
+                        <li>Conduct inspections</li>
+                        <li>Upload facility photos</li>
+                        <li>Monitor safety programs</li>
+                        <li>Generate compliance reports</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4>👀 Report Viewer</h4>
+                    <ul>
+                        <li>View inspection reports</li>
+                        <li>Access analytics dashboards</li>
+                        <li>View school information</li>
+                        <li>❌ Cannot create/modify data</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🏫 School Management</h2>
+            <h3>Viewing Schools</h3>
+            <ol>
+                <li>Click <strong>"Manage Govt Schools"</strong> from dashboard</li>
+                <li>Browse through registered schools</li>
+                <li>Use search and filter options</li>
+            </ol>
+            
+            <h3>Facility Photo Upload</h3>
+            <ol>
+                <li>In school detail view, find <strong>"Upload Facility Photos"</strong></li>
+                <li>Select facility type: Kitchen 🍳, Store Room 📦, Dining 🍽️, etc.</li>
+                <li>Upload photos (PNG, JPG, SVG up to 2MB each)</li>
+                <li>Photos are automatically organized</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Inspection System</h2>
+            <h3>Starting an Inspection</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Method 1: Dashboard</h4>
+                    <p>Click <strong>"New Govt School Inspection"</strong></p>
+                </div>
+                <div class="feature-card">
+                    <h4>Method 2: School Management</h4>
+                    <p>Click <strong>"Inspect"</strong> on school card</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Method 3: Navigation</h4>
+                    <p>Click <strong>"New Inspection"</strong> in menu</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📸 Photo Management</h2>
+            <h3>Photo Types</h3>
+            <ul>
+                <li><strong>🔍 Inspection Photos (Blue):</strong> Formal inspection documentation</li>
+                <li><strong>🏢 Facility Photos (Green):</strong> Kitchen, store room, dining areas</li>
+                <li><strong>📁 Archive Photos (Gray):</strong> Historical reference photos</li>
+            </ul>
+            
+            <h3>Directory Structure</h3>
+            <pre><code>inspectPhotos/
+├── school_1/
+│   ├── facility_kitchen/
+│   ├── facility_storeroom/
+│   └── inspection_INS_123456/
+└── school_2/
+    └── facility_kitchen/</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>⚙️ Admin Panel</h2>
+            <div class="alert alert-info">
+                <strong>Admin Access Required:</strong> Only Administrator role can access these features.
+            </div>
+            
+            <h3>Portal Logo Management</h3>
+            <ol>
+                <li>Login with admin credentials (admin/admin123)</li>
+                <li>Click <strong>"Admin Panel"</strong> in navigation</li>
+                <li>Upload logo (PNG, JPG, SVG up to 2MB)</li>
+                <li>Preview and save changes</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>🚨 Troubleshooting</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Login Problems</h4>
+                    <ul>
+                        <li>Verify credentials are correct</li>
+                        <li>Check caps lock</li>
+                        <li>Refresh page</li>
+                        <li>Clear browser cache</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4>Photo Upload Issues</h4>
+                    <ul>
+                        <li>Check file size (&lt;2MB)</li>
+                        <li>Use PNG, JPG, SVG only</li>
+                        <li>Select school first</li>
+                        <li>Check internet connection</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Quick Reference</h2>
+            <h3>Essential URLs</h3>
+            <ul>
+                <li><strong>Dashboard:</strong> <code>/</code></li>
+                <li><strong>Schools:</strong> <code>/establishments</code></li>
+                <li><strong>Inspections:</strong> <code>/audit</code></li>
+                <li><strong>Programs:</strong> <code>/programs</code></li>
+                <li><strong>Reports:</strong> <code>/reports</code></li>
+                <li><strong>Admin:</strong> <code>/admin</code> (admin only)</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; padding: 30px; background: #333; color: white; border-radius: 10px; margin-top: 30px;">
+            <p><strong>Food Transparency Portal v1.0</strong></p>
+            <p>© 2024 Government of Karnataka - Social Welfare Department</p>
+        </div>
+    </div>
+</body>
+</html>
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .nav {
+            background: #f8f9fa;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .nav a {
+            color: #667eea;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav a:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .section h3 {
+            color: #333;
+            font-size: 1.5rem;
+            margin: 25px 0 15px 0;
+        }
+        
+        .section h4 {
+            color: #555;
+            font-size: 1.2rem;
+            margin: 20px 0 10px 0;
+        }
+        
+        .credentials-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .credentials-table th,
+        .credentials-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .credentials-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .credentials-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin: 2px;
+        }
+        
+        .badge-blue {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .badge-green {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .badge-gray {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        
+        .step-list {
+            counter-reset: step-counter;
+        }
+        
+        .step-list li {
+            counter-increment: step-counter;
+            margin: 15px 0;
+            padding-left: 40px;
+            position: relative;
+        }
+        
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #667eea;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .alert-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            color: #1976d2;
+        }
+        
+        .alert-success {
+            background: #e8f5e8;
+            border-left: 4px solid #4caf50;
+            color: #2e7d32;
+        }
+        
+        .alert-warning {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            color: #f57c00;
+        }
+        
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>📚 Food Transparency Portal</h1>
+            <p>Complete User Guide - Karnataka Government School Food Safety System</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="#getting-started">🚀 Getting Started</a></li>
+                <li><a href="#user-roles">👥 User Roles</a></li>
+                <li><a href="#dashboard">📊 Dashboard</a></li>
+                <li><a href="#schools">🏫 Schools</a></li>
+                <li><a href="#inspections">🔍 Inspections</a></li>
+                <li><a href="#photos">📸 Photos</a></li>
+                <li><a href="#programs">🛡️ Programs</a></li>
+                <li><a href="#reports">📊 Reports</a></li>
+                <li><a href="#admin">⚙️ Admin</a></li>
+            </ul>
+        </nav>
+
+        <section id="getting-started" class="section">
+            <h2>🚀 Getting Started</h2>
+            
+            <h3>System Requirements</h3>
+            <ul>
+                <li><strong>Web Browser:</strong> Chrome, Firefox, Safari, or Edge (latest versions)</li>
+                <li><strong>Internet Connection:</strong> Required for all features</li>
+                <li><strong>Screen Resolution:</strong> Minimum 1024x768 (responsive design supports mobile)</li>
+            </ul>
+
+            <h3>Login Credentials</h3>
+            <table class="credentials-table">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Access Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Administrator</strong></td>
+                        <td><code>admin</code></td>
+                        <td><code>admin123</code></td>
+                        <td>Full system access + Portal settings</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Senior Auditor</strong></td>
+                        <td><code>auditor1</code></td>
+                        <td><code>audit123</code></td>
+                        <td>Inspections + Reports</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Food Safety Officer</strong></td>
+                        <td><code>officer1</code></td>
+                        <td><code>officer123</code></td>
+                        <td>Schools + Safety programs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Report Viewer</strong></td>
+                        <td><code>viewer1</code></td>
+                        <td><code>view123</code></td>
+                        <td>Read-only access</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="user-roles" class="section">
+            <h2>👥 User Roles & Access</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🔑 Administrator</h4>
+                    <p><strong>Full system access including:</strong></p>
+                    <ul>
+                        <li>Portal logo customization</li>
+                        <li>System configuration</li>
+                        <li>All inspection and management features</li>
+                        <li>User management capabilities</li>
+                        <li>Advanced reporting and analytics</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>🔍 Senior Auditor</h4>
+                    <p><strong>Inspection and audit capabilities:</strong></p>
+                    <ul>
+                        <li>Create and manage inspections</li>
+                        <li>Upload inspection photos</li>
+                        <li>Generate inspection reports</li>
+                        <li>View school details and histories</li>
+                        <li>Access safety programs</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>👨‍💼 Food Safety Officer</h4>
+                    <p><strong>School management and safety oversight:</strong></p>
+                    <ul>
+                        <li>Manage school information</li>
+                        <li>Conduct safety inspections</li>
+                        <li>Upload facility photos</li>
+                        <li>Monitor safety programs</li>
+                        <li>Generate compliance reports</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>👀 Report Viewer</h4>
+                    <p><strong>Read-only access:</strong></p>
+                    <ul>
+                        <li>View inspection reports</li>
+                        <li>Access analytics dashboards</li>
+                        <li>View school information</li>
+                        <li>❌ Cannot create or modify data</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="dashboard" class="section">
+            <h2>📊 Dashboard Overview</h2>
+            
+            <h3>Quick Statistics Cards</h3>
+            <ul>
+                <li><strong>Total Schools:</strong> Shows count of registered government schools</li>
+                <li><strong>Recent Inspections:</strong> Number of inspections in the current period</li>
+                <li><strong>Pending Reviews:</strong> Inspections awaiting review</li>
+                <li><strong>Safety Programs:</strong> Active food safety programs</li>
+            </ul>
+
+            <h3>Quick Actions</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🔍 New Govt School Inspection</h4>
+                    <p>Start a new inspection process</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🏫 Manage Govt Schools</h4>
+                    <p>Access school management system</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🛡️ Safety Programs</h4>
+                    <p>View and manage food safety programs</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Generate Reports</h4>
+                    <p>Create comprehensive reports</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="schools" class="section">
+            <h2>🏫 School Management</h2>
+            
+            <h3>Viewing Schools</h3>
+            <ol class="step-list">
+                <li>Click <strong>"Manage Govt Schools"</strong> from dashboard or navigation</li>
+                <li>Browse through the list of registered schools</li>
+                <li>Use search and filter options to find specific schools</li>
+            </ol>
+
+            <h3>School Information Displayed</h3>
+            <ul>
+                <li><strong>School Name</strong> and location</li>
+                <li><strong>School Type</strong> (Government School, Government Aided)</li>
+                <li><strong>Category</strong> (Primary, Higher Secondary, High School)</li>
+                <li><strong>Status</strong> (Active, Under Review, Suspended)</li>
+                <li><strong>Last Inspection Date</strong></li>
+                <li><strong>Overall Rating</strong> (A, B+, B, C, D)</li>
+                <li><strong>Contact Information</strong></li>
+            </ul>
+
+            <h3>Facility Photo Upload</h3>
+            <ol class="step-list">
+                <li>In school detail view, find <strong>"Upload Facility Photos"</strong> panel</li>
+                <li>Select facility type from dropdown</li>
+                <li>Click <strong>"Upload [Facility Type] Photos"</strong></li>
+                <li>Select multiple photos (PNG, JPG, SVG up to 2MB each)</li>
+                <li>Photos are automatically organized and stored</li>
+            </ol>
+
+            <div class="alert alert-info">
+                <strong>Facility Types Available:</strong><br>
+                🍳 Kitchen Facilities • 📦 Store Room • 🍽️ Dining Area • 🚿 Wash Room • ⚽ Playground • 📚 Classroom
+            </div>
+        </section>
+
+        <section id="inspections" class="section">
+            <h2>🔍 Inspection System</h2>
+            
+            <h3>Starting an Inspection</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Method 1: From Dashboard</h4>
+                    <p>Click <strong>"New Govt School Inspection"</strong> quick action → Full-page inspection form opens</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Method 2: From School Management</h4>
+                    <p>Go to <strong>"Manage Govt Schools"</strong> → Click <strong>"Inspect"</strong> button on specific school</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Method 3: From Navigation</h4>
+                    <p>Click <strong>"New Inspection"</strong> in navigation menu → Full-page inspection form opens</p>
+                </div>
+            </div>
+
+            <h3>Inspection Form Features</h3>
+            <h4>School Selection</h4>
+            <ul>
+                <li><strong>Existing Schools:</strong> Dropdown with all registered schools</li>
+                <li><strong>Add New School:</strong> Option to register new school during inspection</li>
+                <li><strong>School Details:</strong> Automatic display of selected school information</li>
+            </ul>
+
+            <h4>Inspection Details</h4>
+            <ul>
+                <li><strong>Inspector Name:</strong> Required field</li>
+                <li><strong>Inspection Date:</strong> Defaults to current date</li>
+                <li><strong>Inspection Type:</strong> Routine, Complaint-based, Follow-up, Surprise</li>
+                <li><strong>Overall Rating:</strong> A (Excellent) to D (Poor)</li>
+            </ul>
+
+            <h3>Photo Upload During Inspections</h3>
+            <ol class="step-list">
+                <li>In inspection form, find <strong>"Inspection Photos"</strong> section</li>
+                <li>Shows storage path: <code>inspectPhotos/school_{id}/inspection_{id}/</code></li>
+                <li>Click <strong>"Choose Files"</strong> or drag and drop</li>
+                <li>Multiple photo selection supported</li>
+                <li>Real-time upload progress indication</li>
+            </ol>
+        </section>
+
+        <section id="photos" class="section">
+            <h2>📸 Photo Management System</h2>
+            
+            <h3>Photo Types and Organization</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="badge badge-blue">🔍 Inspection Photos</span></h4>
+                    <ul>
+                        <li>Photos taken during formal inspections</li>
+                        <li>Automatically organized by inspection ID</li>
+                        <li>Include inspector and date metadata</li>
+                        <li>Stored in: <code>inspectPhotos/school_{id}/inspection_{id}/</code></li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4><span class="badge badge-green">🏢 Facility Photos</span></h4>
+                    <ul>
+                        <li>Photos of specific school facilities</li>
+                        <li>Organized by facility type</li>
+                        <li>Include facility type and upload date</li>
+                        <li>Stored in: <code>inspectPhotos/school_{id}/facility_{type}/</code></li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4><span class="badge badge-gray">📁 Archive Photos</span></h4>
+                    <ul>
+                        <li>Historical or reference photos</li>
+                        <li>General school documentation</li>
+                        <li>Legacy photo storage</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Directory Structure</h3>
+            <div class="code-block">
+inspectPhotos/
+├── school_1/
+│   ├── facility_kitchen/
+│   │   ├── 2024-01-15T10-30-00-000Z_uuid1234.jpg
+│   │   └── 2024-01-15T10-31-15-000Z_uuid5678.png
+│   ├── facility_storeroom/
+│   │   └── 2024-01-15T11-00-00-000Z_uuid9012.jpg
+│   └── inspection_INS_1234567890_abc123def/
+│       ├── 2024-01-15T14-20-00-000Z_uuid3456.jpg
+│       └── 2024-01-15T14-21-30-000Z_uuid7890.png
+└── school_2/
+    └── facility_kitchen/
+        └── 2024-01-16T09-15-00-000Z_uuid2468.jpg
+            </div>
+        </section>
+
+        <section id="programs" class="section">
+            <h2>🛡️ Safety Programs</h2>
+            
+            <h3>Available Programs</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Karnataka Govt School Kitchen HACCP Training</h4>
+                    <ul>
+                        <li>Hazard Analysis and Critical Control Points training</li>
+                        <li>1,250 participants</li>
+                        <li>74% completion rate</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Karnataka Govt School Food Handler Certification</h4>
+                    <ul>
+                        <li>Mandatory certification for food service workers</li>
+                        <li>2,840 participants</li>
+                        <li>84% completion rate</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Karnataka Govt School Nutrition & Hygiene Program</h4>
+                    <ul>
+                        <li>Comprehensive nutrition and hygiene training</li>
+                        <li>1,680 participants</li>
+                        <li>75% completion rate</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Karnataka Govt School Food Safety Monitoring</h4>
+                    <ul>
+                        <li>Regular safety audits and compliance monitoring</li>
+                        <li>Planning phase</li>
+                        <li>17% initial setup completion</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="reports" class="section">
+            <h2>📊 Reports & Analytics</h2>
+            
+            <h3>Report Types Available</h3>
+            <ul>
+                <li><strong>Inspection Reports:</strong> Detailed inspection findings</li>
+                <li><strong>School Performance Reports:</strong> Individual school analytics</li>
+                <li><strong>Program Effectiveness Reports:</strong> Safety program outcomes</li>
+                <li><strong>Compliance Reports:</strong> Regulatory compliance status</li>
+                <li><strong>Photo Documentation Reports:</strong> Visual inspection records</li>
+            </ul>
+
+            <h3>Export Options</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>PDF Reports</h4>
+                    <p>Formatted reports for official documentation</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Excel Spreadsheets</h4>
+                    <p>Data analysis and manipulation</p>
+                </div>
+                <div class="feature-card">
+                    <h4>CSV Data</h4>
+                    <p>Raw data export for external systems</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="admin" class="section">
+            <h2>⚙️ Admin Panel</h2>
+            
+            <div class="alert alert-warning">
+                <strong>Admin Access Required:</strong> Only users with Administrator role can access these features.
+            </div>
+
+            <h3>Portal Logo Management</h3>
+            <ol class="step-list">
+                <li>Login with admin credentials (admin/admin123)</li>
+                <li>Click <strong>"Admin Panel"</strong> in navigation menu</li>
+                <li>Find <strong>"Upload Facility Photos"</strong> section</li>
+                <li>Select facility type if needed</li>
+                <li>Upload logo file (PNG, JPG, SVG up to 2MB)</li>
+                <li>Preview logo before saving</li>
+                <li>Click <strong>"Save Logo"</strong> to apply changes</li>
+            </ol>
+
+            <h3>Logo Guidelines</h3>
+            <ul>
+                <li><strong>Recommended Size:</strong> 200x80 pixels or similar aspect ratio</li>
+                <li><strong>Format:</strong> PNG with transparent background for best results</li>
+                <li><strong>Readability:</strong> Ensure logo works on both light and dark backgrounds</li>
+                <li><strong>File Size:</strong> Maximum 2MB</li>
+                <li><strong>Usage:</strong> Logo appears in navigation bar and login page</li>
+            </ul>
+
+            <div class="alert alert-success">
+                <strong>Real-time Updates:</strong> Logo changes appear immediately across the application when saved.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>🚨 Troubleshooting</h2>
+            
+            <h3>Common Issues and Solutions</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Login Problems</h4>
+                    <p><strong>Issue:</strong> Cannot login with provided credentials</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Verify username and password are correct</li>
+                        <li>Check caps lock is off</li>
+                        <li>Try refreshing the page</li>
+                        <li>Clear browser cache and cookies</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Photo Upload Issues</h4>
+                    <p><strong>Issue:</strong> Photos won't upload</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Ensure photos are under 2MB</li>
+                        <li>Use PNG, JPG, or SVG formats only</li>
+                        <li>Select a school before uploading</li>
+                        <li>Check internet connection</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Page Loading Problems</h4>
+                    <p><strong>Issue:</strong> Pages load slowly or not at all</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Check network connectivity</li>
+                        <li>Clear browser cache and cookies</li>
+                        <li>Update to latest browser version</li>
+                        <li>Disable browser extensions temporarily</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>🎯 Quick Reference</h2>
+            
+            <h3>Essential URLs</h3>
+            <ul>
+                <li><strong>Dashboard:</strong> <code>/</code> - Main system dashboard</li>
+                <li><strong>Schools:</strong> <code>/establishments</code> - School management</li>
+                <li><strong>Inspections:</strong> <code>/audit</code> - New inspection form</li>
+                <li><strong>Programs:</strong> <code>/programs</code> - Safety programs</li>
+                <li><strong>Reports:</strong> <code>/reports</code> - Analytics and reporting</li>
+                <li><strong>Admin Panel:</strong> <code>/admin</code> - Administrative features (admin only)</li>
+            </ul>
+
+            <h3>Key Features Summary</h3>
+            <div class="alert alert-info">
+                ✅ Complete School Management • ✅ Comprehensive Inspections • ✅ Organized Photo Storage<br>
+                ✅ Role-Based Access • ✅ Safety Program Tracking • ✅ Advanced Reporting<br>
+                ✅ Admin Customization • ✅ Mobile Responsive • ✅ Clean White Theme
+            </div>
+        </section>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <p><strong>Food Transparency Portal v1.0</strong></p>
+            <p>© 2024 Government of Karnataka - Social Welfare Department</p>
+            <p>All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add active state to navigation
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('.nav a');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

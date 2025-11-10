@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Transparency Portal - Complete User Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .section {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        h3 {
+            color: #764ba2;
+            margin-top: 25px;
+        }
+        .feature-box {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .step {
+            background: #e8f4f8;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #17a2b8;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .credentials-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .credentials-table th,
+        .credentials-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .credentials-table th {
+            background: #667eea;
+            color: white;
+        }
+        .credentials-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .toc {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .toc li {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .screenshot-placeholder {
+            background: #e9ecef;
+            border: 2px dashed #adb5bd;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 8px;
+            color: #6c757d;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+            margin-top: 40px;
+        }
+        @media print {
+            body { background: white; }
+            .section { box-shadow: none; border: 1px solid #ddd; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Karnataka Government School Food Safety Application</h1>
+        <p>Complete End-to-End User Guide</p>
+        <p>Version 1.0 | January 2024</p>
+    </div>
+
+    <div class="section toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#overview">1. Application Overview</a></li>
+            <li><a href="#getting-started">2. Getting Started</a></li>
+            <li><a href="#login">3. Login & Authentication</a></li>
+            <li><a href="#dashboard">4. Dashboard Navigation</a></li>
+            <li><a href="#school-management">5. School Management</a></li>
+            <li><a href="#inspections">6. Food Safety Inspections</a></li>
+            <li><a href="#photo-upload">7. Photo Documentation</a></li>
+            <li><a href="#safety-programs">8. Safety Programs</a></li>
+            <li><a href="#reports">9. Reports & Analytics</a></li>
+            <li><a href="#troubleshooting">10. Troubleshooting</a></li>
+            <li><a href="#support">11. Support & Contact</a></li>
+        </ul>
+    </div>
+
+    <div class="section" id="overview">
+        <h2>1. Application Overview</h2>
+        <p>The Karnataka Government School Food Safety Application is a comprehensive digital platform designed to streamline food safety inspections across all government schools in Karnataka state. This application enables food safety inspectors to conduct thorough inspections, document findings with photos, manage school data, and track safety programs.</p>
+        
+        <div class="feature-box">
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Digital Inspections:</strong> Comprehensive multi-step inspection forms</li>
+                <li><strong>Photo Documentation:</strong> Upload and manage inspection photos</li>
+                <li><strong>School Management:</strong> Manage 8,547+ Karnataka government schools</li>
+                <li><strong>Safety Programs:</strong> Track training and certification programs</li>
+                <li><strong>Real-time Dashboard:</strong> Monitor compliance and inspection status</li>
+                <li><strong>Reports & Analytics:</strong> Generate detailed inspection reports</li>
+            </ul>
+        </div>
+
+        <div class="success">
+            <strong>Target Users:</strong> Food Safety Inspectors, Education Department Officials, School Administrators, and Program Coordinators working with Karnataka government schools.
+        </div>
+    </div>
+
+    <div class="section" id="getting-started">
+        <h2>2. Getting Started</h2>
+        
+        <h3>System Requirements</h3>
+        <ul>
+            <li><strong>Browser:</strong> Chrome 90+, Firefox 88+, Safari 14+, Edge 90+</li>
+            <li><strong>Internet:</strong> Stable internet connection required</li>
+            <li><strong>Device:</strong> Desktop, laptop, or tablet (mobile responsive)</li>
+            <li><strong>Screen Resolution:</strong> Minimum 1024x768 recommended</li>
+        </ul>
+
+        <h3>Accessing the Application</h3>
+        <div class="step">
+            <strong>Step 1:</strong> Open your web browser and navigate to the application URL<br>
+            <code>http://localhost:3000</code> (for development) or your deployed URL
+        </div>
+        
+        <div class="step">
+            <strong>Step 2:</strong> You will be automatically redirected to the login page if not authenticated
+        </div>
+
+        <div class="warning">
+            <strong>Note:</strong> Ensure you have received your login credentials from your system administrator before attempting to access the application.
+        </div>
+    </div>
+
+    <div class="section" id="login">
+        <h2>3. Login & Authentication</h2>
+        
+        <h3>User Roles & Access Levels</h3>
+        <table class="credentials-table">
+            <thead>
+                <tr>
+                    <th>Role</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Access Level</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Administrator</td>
+                    <td>admin</td>
+                    <td>admin123</td>
+                    <td>Full access to all features</td>
+                </tr>
+                <tr>
+                    <td>Food Safety Inspector</td>
+                    <td>auditor1</td>
+                    <td>audit123</td>
+                    <td>Inspection forms, school data, reports</td>
+                </tr>
+                <tr>
+                    <td>Education Officer</td>
+                    <td>officer1</td>
+                    <td>officer123</td>
+                    <td>School management, program monitoring</td>
+                </tr>
+                <tr>
+                    <td>Viewer</td>
+                    <td>viewer1</td>
+                    <td>view123</td>
+                    <td>Read-only access to reports and data</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Login Process</h3>
+        <div class="step">
+            <strong>Step 1:</strong> Enter your username in the "Username" field
+        </div>
+        
+        <div class="step">
+            <strong>Step 2:</strong> Enter your password in the "Password" field
+        </div>
+        
+        <div class="step">
+            <strong>Step 3:</strong> Click the "Login" button
+        </div>
+        
+        <div class="step">
+            <strong>Step 4:</strong> Upon successful authentication, you'll be redirected to the dashboard
+        </div>
+
+        <div class="warning">
+            <strong>Security Note:</strong> Your session will automatically expire after 30 minutes of inactivity. Always log out when finished using the application.
+        </div>
+    </div>
+
+    <div class="section" id="dashboard">
+        <h2>4. Dashboard Navigation</h2>
+        
+        <h3>Dashboard Overview</h3>
+        <p>The dashboard provides a comprehensive overview of the Karnataka government school food safety system with real-time statistics and quick access to key functions.</p>
+
+        <div class="feature-box">
+            <h3>Key Statistics Displayed</h3>
+            <ul>
+                <li><strong>Karnataka Govt Schools:</strong> 8,547 schools in the system</li>
+                <li><strong>Safety Programs:</strong> 28 active programs</li>
+                <li><strong>Pending Inspections:</strong> 142 schools awaiting inspection</li>
+                <li><strong>Safety Compliance:</strong> 89.2% overall compliance rate</li>
+            </ul>
+        </div>
+
+        <h3>Navigation Menu</h3>
+        <ul>
+            <li><strong>Dashboard:</strong> Main overview and statistics</li>
+            <li><strong>New Inspection:</strong> Start a new school food safety inspection</li>
+            <li><strong>Schools:</strong> Manage Karnataka government school data</li>
+            <li><strong>Programs:</strong> Monitor safety training and certification programs</li>
+            <li><strong>Reports:</strong> Generate and view inspection reports</li>
+        </ul>
+
+        <h3>Recent Inspections</h3>
+        <p>The dashboard displays the most recent inspections with:</p>
+        <ul>
+            <li>School name and location</li>
+            <li>Inspection status (Completed, In Progress, Pending)</li>
+            <li>Safety rating (A, B+, C, etc.)</li>
+            <li>Number of photos uploaded</li>
+            <li>Inspector name and date</li>
+        </ul>
+
+        <h3>Quick Actions</h3>
+        <div class="step">
+            <strong>New Govt School Inspection:</strong> Start a new Karnataka government school food safety inspection
+        </div>
+        
+        <div class="step">
+            <strong>Manage Govt Schools:</strong> View and manage Karnataka government schools
+        </div>
+        
+        <div class="step">
+            <strong>Safety Programs:</strong> Track government school food safety programs
+        </div>
+        
+        <div class="step">
+            <strong>Generate Reports:</strong> Create government school inspection reports
+        </div>
+    </div>
+
+    <div class="section" id="school-management">
+        <h2>5. School Management</h2>
+        
+        <h3>Accessing School Management</h3>
+        <p>Navigate to <strong>Schools</strong> from the main menu to access the Karnataka Government School Management interface.</p>
+
+        <h3>School Information</h3>
+        <p>Each school record contains:</p>
+        <ul>
+            <li><strong>School Name:</strong> Official name of the government school</li>
+            <li><strong>Type:</strong> Government School classification</li>
+            <li><strong>Owner:</strong> Karnataka Education Department</li>
+            <li><strong>Location:</strong> District and area within Karnataka</li>
+            <li><strong>Contact:</strong> Phone and email information</li>
+            <li><strong>License Number:</strong> KGS-YYYY-XXX format</li>
+            <li><strong>Safety Rating:</strong> Current food safety rating</li>
+            <li><strong>Inspection Dates:</strong> Last and next scheduled inspections</li>
+            <li><strong>Violations:</strong> Number of current violations</li>
+        </ul>
+
+        <h3>Search and Filter</h3>
+        <div class="step">
+            <strong>Search:</strong> Use the search bar to find schools by name, location, or owner
+        </div>
+        
+        <div class="step">
+            <strong>Filter by Status:</strong> Filter schools by Active, Under Review, or Suspended status
+        </div>
+
+        <h3>School Categories</h3>
+        <ul>
+            <li><strong>Primary School:</strong> Classes 1-5</li>
+            <li><strong>Higher Secondary:</strong> Classes 1-10</li>
+            <li><strong>Higher Secondary:</strong> Classes 1-12</li>
+        </ul>
+
+        <div class="success">
+            <strong>Tip:</strong> Use the search functionality to quickly locate specific schools before conducting inspections.
+        </div>
+    </div>
+
+    <div class="section" id="inspections">
+        <h2>6. Food Safety Inspections</h2>
+        
+        <h3>Starting a New Inspection</h3>
+        <div class="step">
+            <strong>Step 1:</strong> Click "New Govt School Inspection" from the dashboard or navigation menu
+        </div>
+        
+        <div class="step">
+            <strong>Step 2:</strong> You'll be taken to the multi-step inspection form
+        </div>
+
+        <h3>Inspection Form Sections</h3>
+        
+        <h4>Section 1: Government School Details</h4>
+        <ul>
+            <li>Inspection Type (Routine, Complaint-based, Follow-up, Licensing)</li>
+            <li>School Name</li>
+            <li>School Type (Government Primary, High School, Higher Secondary, Residential)</li>
+            <li>Location and District</li>
+            <li>State (Karnataka - pre-filled)</li>
+            <li>Inspection Date</li>
+            <li>Inspector Name</li>
+        </ul>
+
+        <h4>Section 2: License & Contact Information</h4>
+        <ul>
+            <li>License Number (KGS format)</li>
+            <li>Principal Name</li>
+            <li>Contact Number</li>
+        </ul>
+
+        <h4>Section 3: Food Safety Assessment</h4>
+        <ul>
+            <li>Hygiene Rating</li>
+            <li>Temperature Check</li>
+            <li>Storage Conditions</li>
+            <li>Kitchen Staff Hygiene</li>
+            <li>Equipment Cleanliness</li>
+            <li>Waste Management</li>
+        </ul>
+
+        <h4>Section 4: Inspection Findings</h4>
+        <ul>
+            <li>Detailed Findings</li>
+            <li>Recommendations</li>
+        </ul>
+
+        <h4>Section 5: Photo Documentation</h4>
+        <ul>
+            <li>Upload inspection photos</li>
+            <li>Photo management and preview</li>
+        </ul>
+
+        <h4>Section 6: Final Report</h4>
+        <ul>
+            <li>Document uploads</li>
+            <li>Final submission</li>
+        </ul>
+
+        <h3>Navigation Between Sections</h3>
+        <div class="step">
+            <strong>Next:</strong> Click "Next" to proceed to the following section
+        </div>
+        
+        <div class="step">
+            <strong>Previous:</strong> Click "Previous" to return to the previous section
+        </div>
+        
+        <div class="step">
+            <strong>Save Draft:</strong> Save your progress without submitting
+        </div>
+        
+        <div class="step">
+            <strong>Submit:</strong> Complete and submit the inspection report
+        </div>
+
+        <div class="warning">
+            <strong>Important:</strong> Ensure all required fields are completed before attempting to submit the inspection form.
+        </div>
+    </div>
+
+    <div class="section" id="photo-upload">
+        <h2>7. Photo Documentation</h2>
+        
+        <h3>Photo Upload Features</h3>
+        <p>The application includes a comprehensive photo upload system for documenting inspection findings.</p>
+
+        <div class="feature-box">
+            <h3>Supported Features</h3>
+            <ul>
+                <li><strong>Drag & Drop:</strong> Drag photos directly into the upload area</li>
+                <li><strong>File Browser:</strong> Click to browse and select files</li>
+                <li><strong>Preview:</strong> View uploaded photos before submission</li>
+                <li><strong>File Validation:</strong> Automatic file size and type checking</li>
+                <li><strong>Delete:</strong> Remove unwanted photos</li>
+            </ul>
+        </div>
+
+        <h3>Upload Process</h3>
+        <div class="step">
+            <strong>Step 1:</strong> Navigate to the "Photo Documentation" section of the inspection form
+        </div>
+        
+        <div class="step">
+            <strong>Step 2:</strong> Either drag photos into the upload area or click "Browse Files"
+        </div>
+        
+        <div class="step">
+            <strong>Step 3:</strong> Review uploaded photos in the preview area
+        </div>
+        
+        <div class="step">
+            <strong>Step 4:</strong> Add captions or descriptions if needed
+        </div>
+        
+        <div class="step">
+            <strong>Step 5:</strong> Remove any unwanted photos using the delete button
+        </div>
+
+        <h3>File Requirements</h3>
+        <ul>
+            <li><strong>Supported Formats:</strong> JPG, JPEG, PNG, GIF</li>
+            <li><strong>Maximum File Size:</strong> 5MB per photo</li>
+            <li><strong>Maximum Photos:</strong> 20 photos per inspection</li>
+            <li><strong>Recommended Resolution:</strong> 1920x1080 or higher</li>
+        </ul>
+
+        <div class="success">
+            <strong>Best Practice:</strong> Take clear, well-lit photos that clearly show the areas being inspected. Include photos of kitchen areas, storage facilities, and any violations found.
+        </div>
+    </div>
+
+    <div class="section" id="safety-programs">
+        <h2>8. Safety Programs</h2>
+        
+        <h3>Program Overview</h3>
+        <p>The Safety Programs section allows you to monitor and manage food safety training and certification programs across Karnataka government schools.</p>
+
+        <h3>Available Programs</h3>
+        <ul>
+            <li><strong>Karnataka Govt School Kitchen HACCP Training:</strong> 1,250 participants</li>
+            <li><strong>Karnataka Govt School Food Handler Certification:</strong> 2,840 participants</li>
+            <li><strong>Karnataka Govt School Nutrition & Hygiene Program:</strong> 1,680 participants</li>
+            <li><strong>Karnataka Govt School Food Safety Monitoring:</strong> Planning phase</li>
+        </ul>
+
+        <h3>Program Information</h3>
+        <p>Each program displays:</p>
+        <ul>
+            <li><strong>Program Name:</strong> Full program title</li>
+            <li><strong>Description:</strong> Program objectives and scope</li>
+            <li><strong>Status:</strong> Active, Planning, Completed, On Hold</li>
+            <li><strong>Participants:</strong> Number of enrolled participants</li>
+            <li><strong>Budget:</strong> Total allocated budget</li>
+            <li><strong>Spent:</strong> Amount spent to date</li>
+            <li><strong>Progress:</strong> Completion percentage</li>
+            <li><strong>Coordinator:</strong> Program manager</li>
+            <li><strong>Timeline:</strong> Start and end dates</li>
+        </ul>
+
+        <h3>Program Categories</h3>
+        <ul>
+            <li><strong>Training:</strong> Educational programs for staff</li>
+            <li><strong>Certification:</strong> Official certification programs</li>
+            <li><strong>Monitoring:</strong> Ongoing compliance monitoring</li>
+        </ul>
+
+        <div class="feature-box">
+            <h3>Program Statistics</h3>
+            <ul>
+                <li><strong>Total Programs:</strong> 4 active programs</li>
+                <li><strong>Total Participants:</strong> 5,770 enrolled</li>
+                <li><strong>Total Budget:</strong> ₹25,40,000</li>
+                <li><strong>Average Progress:</strong> 62.5% completion</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section" id="reports">
+        <h2>9. Reports & Analytics</h2>
+        
+        <h3>Available Reports</h3>
+        <ul>
+            <li><strong>Inspection Summary:</strong> Overview of all inspections</li>
+            <li><strong>School Compliance:</strong> Compliance rates by district</li>
+            <li><strong>Violation Trends:</strong> Common violations and trends</li>
+            <li><strong>Program Progress:</strong> Safety program completion rates</li>
+            <li><strong>Inspector Performance:</strong> Inspector activity and efficiency</li>
+        </ul>
+
+        <h3>Generating Reports</h3>
+        <div class="step">
+            <strong>Step 1:</strong> Navigate to the "Reports" section
+        </div>
+        
+        <div class="step">
+            <strong>Step 2:</strong> Select the type of report you want to generate
+        </div>
+        
+        <div class="step">
+            <strong>Step 3:</strong> Choose date range and filters
+        </div>
+        
+        <div class="step">
+            <strong>Step 4:</strong> Click "Generate Report"
+        </div>
+        
+        <div class="step">
+            <strong>Step 5:</strong> View, print, or export the report
+        </div>
+
+        <h3>Export Options</h3>
+        <ul>
+            <li><strong>PDF:</strong> For printing and sharing</li>
+            <li><strong>Excel:</strong> For data analysis</li>
+            <li><strong>CSV:</strong> For data import/export</li>
+        </ul>
+
+        <div class="success">
+            <strong>Tip:</strong> Use date filters to generate reports for specific time periods, such as monthly or quarterly summaries.
+        </div>
+    </div>
+
+    <div class="section" id="troubleshooting">
+        <h2>10. Troubleshooting</h2>
+        
+        <h3>Common Issues and Solutions</h3>
+        
+        <h4>Login Issues</h4>
+        <div class="warning">
+            <strong>Problem:</strong> Cannot log in with provided credentials<br>
+            <strong>Solution:</strong> Verify username and password are correct. Check caps lock. Contact administrator if issue persists.
+        </div>
+
+        <h4>Photo Upload Issues</h4>
+        <div class="warning">
+            <strong>Problem:</strong> Photos won't upload<br>
+            <strong>Solution:</strong> Check file size (max 5MB), file format (JPG, PNG), and internet connection. Try refreshing the page.
+        </div>
+
+        <h4>Form Submission Issues</h4>
+        <div class="warning">
+            <strong>Problem:</strong> Cannot submit inspection form<br>
+            <strong>Solution:</strong> Ensure all required fields are completed. Check internet connection. Save as draft and try again.
+        </div>
+
+        <h4>Performance Issues</h4>
+        <div class="warning">
+            <strong>Problem:</strong> Application running slowly<br>
+            <strong>Solution:</strong> Clear browser cache, close unnecessary tabs, check internet speed, try different browser.
+        </div>
+
+        <h3>Browser Compatibility</h3>
+        <ul>
+            <li><strong>Recommended:</strong> Chrome 90+, Firefox 88+</li>
+            <li><strong>Supported:</strong> Safari 14+, Edge 90+</li>
+            <li><strong>Not Supported:</strong> Internet Explorer</li>
+        </ul>
+
+        <h3>System Requirements Check</h3>
+        <div class="step">
+            <strong>Step 1:</strong> Ensure stable internet connection (minimum 1 Mbps)</li>
+        </div>
+        
+        <div class="step">
+            <strong>Step 2:</strong> Update browser to latest version</li>
+        </div>
+        
+        <div class="step">
+            <strong>Step 3:</strong> Enable JavaScript and cookies</li>
+        </div>
+        
+        <div class="step">
+            <strong>Step 4:</strong> Disable ad blockers if experiencing issues</li>
+        </div>
+    </div>
+
+    <div class="section" id="support">
+        <h2>11. Support & Contact</h2>
+        
+        <h3>Technical Support</h3>
+        <ul>
+            <li><strong>Email:</strong> support@karnataka-foodsafety.gov.in</li>
+            <li><strong>Phone:</strong> +91-80-2234-5678</li>
+            <li><strong>Hours:</strong> Monday-Friday, 9:00 AM - 6:00 PM IST</li>
+        </ul>
+
+        <h3>Training and Documentation</h3>
+        <ul>
+            <li><strong>Training Sessions:</strong> Monthly training sessions for new users</li>
+            <li><strong>Video Tutorials:</strong> Available on the help section</li>
+            <li><strong>User Manual:</strong> Downloadable PDF guide</li>
+        </ul>
+
+        <h3>Feedback and Suggestions</h3>
+        <ul>
+            <li><strong>Feedback Email:</strong> feedback@karnataka-foodsafety.gov.in</li>
+            <li><strong>Feature Requests:</strong> Submit through the application feedback form</li>
+            <li><strong>Bug Reports:</strong> Use the built-in bug reporting tool</li>
+        </ul>
+
+        <h3>Emergency Contacts</h3>
+        <div class="warning">
+            <strong>For Critical Issues:</strong><br>
+            Emergency Hotline: +91-80-2234-5679<br>
+            Available 24/7 for system outages or critical inspection deadlines
+        </div>
+
+        <h3>Version Information</h3>
+        <ul>
+            <li><strong>Application Version:</strong> 1.0.0</li>
+            <li><strong>Last Updated:</strong> January 2024</li>
+            <li><strong>Next Update:</strong> Quarterly updates scheduled</li>
+        </ul>
+
+        <div class="success">
+            <strong>Remember:</strong> Always log out properly when finished using the application to maintain security and data integrity.
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><strong>Karnataka Government School Food Safety Application</strong></p>
+        <p>© 2024 Karnataka Education Department | All Rights Reserved</p>
+        <p>This document is confidential and intended for authorized users only.</p>
+    </div>
+</body>
+</html>

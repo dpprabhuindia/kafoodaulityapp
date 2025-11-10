@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: food-transparency-portal
+  namespace: food-transparency-portal
+  labels:
+    app: food-transparency-portal
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: food-transparency-portal
+  template:
+    metadata:
+      labels:
+        app: food-transparency-portal
+    spec:
+      containers:
+      - name: food-transparency-portal
+        image: food-transparency-portal:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: inspection-photos
+          mountPath: /usr/share/nginx/html/inspectPhotos
+      volumes:
+      - name: inspection-photos
+        persistentVolumeClaim:
+          claimName: inspection-photos-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: food-transparency-portal-service
+  namespace: food-transparency-portal
+  labels:
+    app: food-transparency-portal
+spec:
+  selector:
+    app: food-transparency-portal
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: inspection-photos-pvc
+  namespace: food-transparency-portal
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
