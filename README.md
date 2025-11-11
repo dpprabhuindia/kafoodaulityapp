@@ -1,2 +1,0 @@
-# kafoodqualityapp
-kafoodqualityapp
