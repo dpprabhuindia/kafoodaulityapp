@@ -1,27 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
-  Search, 
   Plus, 
   MapPin, 
   Phone, 
   Mail, 
-  Calendar,
-  Store,
   CheckCircle,
-  AlertTriangle,
   Camera,
   FileText,
   Save,
   X,
   Building2,
   Users,
-  Clock
+  Upload
 } from 'lucide-react';
 import { savePhotoToLocal, deletePhoto, ensureDirectoryExists } from '../utils/photoStorage';
 import { useI18n } from '../i18n/I18nProvider';
+import { detectDevice } from '../utils/deviceDetection';
 
 const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true }) => {
   const { t } = useI18n();
+  const device = detectDevice();
+  const isMobile = device.isMobile;
+  const cameraInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
   const [selectedSchool, setSelectedSchool] = useState(preSelectedSchoolId);
   const [showAddSchool, setShowAddSchool] = useState(false);
   const [inspectionId] = useState(() => `INS_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
@@ -103,11 +104,38 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
     setSelectedSchool(null);
   };
 
+  const handleTakePhoto = () => {
+    if (cameraInputRef.current && !uploadingPhotos) {
+      try {
+        // Reset input value to allow retaking photos
+        cameraInputRef.current.value = '';
+        // Trigger click to open camera
+        cameraInputRef.current.click();
+      } catch (error) {
+        console.error('Error opening camera:', error);
+        alert('Unable to open camera. Please ensure camera permissions are granted and try again.');
+      }
+    }
+  };
+
+  const handleUploadFromGallery = () => {
+    if (galleryInputRef.current) {
+      galleryInputRef.current.click();
+    }
+  };
+
   const handlePhotoUpload = async (event) => {
     const files = Array.from(event.target.files);
+    const inputElement = event.target;
     
     if (!selectedSchool && !showAddSchool) {
       alert(t('inspection.alerts.selectSchoolFirst'));
+      // Reset input so it can be used again
+      inputElement.value = '';
+      return;
+    }
+    
+    if (files.length === 0) {
       return;
     }
     
@@ -156,6 +184,8 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
       alert(t('inspection.alerts.photoUploadError'));
     } finally {
       setUploadingPhotos(false);
+      // Reset input value so camera can be opened again
+      inputElement.value = '';
     }
   };
 
@@ -222,40 +252,41 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
   const selectedSchoolData = existingSchools.find(school => school.id === selectedSchool);
 
   const containerClasses = isModal 
-    ? "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-    : "min-h-screen flex items-center justify-center p-4";
+    ? "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4"
+    : "min-h-screen flex items-center justify-center";
     
   const formClasses = isModal
-    ? "bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+    ? "bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
     : "bg-white rounded-xl shadow-2xl max-w-4xl w-full";
 
   return (
     <div className={containerClasses}>
       <div className={formClasses}>
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-xl">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 sm:p-6 rounded-t-xl">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">{t('inspection.title')}</h2>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold break-words pr-2">{t('inspection.title')}</h2>
             <button
               onClick={onClose}
-              className="text-white hover:text-gray-200 transition-colors"
+              className="text-white hover:text-gray-200 transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Close"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* School Selection Section */}
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-lg font-semibold mb-4 flex items-center">
-              <Building2 className="w-5 h-5 mr-2 text-blue-600" />
-              {t('inspection.selectSchool')}
+          <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center">
+              <Building2 className="w-5 h-5 mr-2 text-blue-600 flex-shrink-0" />
+              <span className="break-words">{t('inspection.selectSchool')}</span>
             </h3>
 
             {!showAddSchool ? (
-              <div className="space-y-4">
-                <div className="flex gap-4">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <div className="flex-1 relative">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {t('inspection.chooseExisting')}
@@ -264,7 +295,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                       <select
                         value={selectedSchool || ''}
                         onChange={(e) => handleSchoolSelect(parseInt(e.target.value))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 cursor-pointer"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 cursor-pointer text-base"
                       >
                         <option value="">{t('inspection.selectSchoolPlaceholder')}</option>
                         {existingSchools.map((school) => (
@@ -273,29 +304,24 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                           </option>
                         ))}
                       </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
                     </div>
                   </div>
                   <div className="flex items-end">
                     <button
                       onClick={handleAddNewSchool}
-                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
+                      className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white px-4 sm:px-6 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors w-full sm:w-auto min-h-[44px] touch-manipulation"
                     >
                       <Plus className="w-5 h-5" />
-                      {t('inspection.addNewSchool')}
+                      <span className="text-sm sm:text-base">{t('inspection.addNewSchool')}</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Selected School Details */}
                 {selectedSchoolData && (
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
-                    <h4 className="font-semibold text-gray-900 mb-2">{t('inspection.selectedSchoolDetails')}</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200">
+                    <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">{t('inspection.selectedSchoolDetails')}</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
                       <div className="flex items-center text-gray-600">
                         <MapPin className="w-4 h-4 mr-2" />
                         {selectedSchoolData.location}
@@ -318,18 +344,19 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
               </div>
             ) : (
               /* Add New School Form */
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex justify-between items-center">
-                  <h4 className="font-semibold text-gray-900">{t('inspection.addNewSchoolTitle')}</h4>
+                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base break-words pr-2">{t('inspection.addNewSchoolTitle')}</h4>
                   <button
                     onClick={() => setShowAddSchool(false)}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-500 hover:text-gray-700 active:text-gray-900 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+                    aria-label="Close"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       {t('inspection.schoolName')} *
@@ -338,7 +365,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                       type="text"
                       value={newSchool.name}
                       onChange={(e) => setNewSchool({...newSchool, name: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                       placeholder={t('inspection.placeholderSchoolName')}
                     />
                   </div>
@@ -349,7 +376,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     <select
                       value={newSchool.type}
                       onChange={(e) => setNewSchool({...newSchool, type: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                     >
                       <option value="Government School">{t('inspection.schoolTypes.government')}</option>
                       <option value="Aided School">{t('inspection.schoolTypes.aided')}</option>
@@ -363,7 +390,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                       type="text"
                       value={newSchool.location}
                       onChange={(e) => setNewSchool({...newSchool, location: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                       placeholder={t('inspection.placeholderLocation')}
                     />
                   </div>
@@ -375,7 +402,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                       type="tel"
                       value={newSchool.phone}
                       onChange={(e) => setNewSchool({...newSchool, phone: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                       placeholder="+91 XXX XXX XXXX"
                     />
                   </div>
@@ -387,7 +414,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                       type="email"
                       value={newSchool.email}
                       onChange={(e) => setNewSchool({...newSchool, email: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                       placeholder="school@karnataka.gov.in"
                     />
                   </div>
@@ -399,7 +426,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                       type="text"
                       value={newSchool.principalName}
                       onChange={(e) => setNewSchool({...newSchool, principalName: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                       placeholder={t('inspection.principalName')}
                     />
                   </div>
@@ -411,7 +438,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                       type="number"
                       value={newSchool.studentCount}
                       onChange={(e) => setNewSchool({...newSchool, studentCount: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                       placeholder={t('inspection.studentCount')}
                     />
                   </div>
@@ -422,7 +449,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     <select
                       value={newSchool.category}
                       onChange={(e) => setNewSchool({...newSchool, category: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                     >
                       <option value="Primary School">{t('inspection.categories.primary')}</option>
                       <option value="Higher Primary">{t('inspection.categories.higherPrimary')}</option>
@@ -437,7 +464,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     <select
                       value={newSchool.level}
                       onChange={(e) => setNewSchool({...newSchool, level: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                     >
                       <option value="State Level">{t('inspection.levels.state')}</option>
                       <option value="District Level">{t('inspection.levels.district')}</option>
@@ -446,17 +473,17 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                   </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleNewSchoolSubmit}
-                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                    className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white px-4 sm:px-6 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors min-h-[44px] touch-manipulation"
                   >
                     <CheckCircle className="w-4 h-4" />
-                    {t('inspection.addSchoolContinue')}
+                    <span className="text-sm sm:text-base">{t('inspection.addSchoolContinue')}</span>
                   </button>
                   <button
                     onClick={() => setShowAddSchool(false)}
-                    className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors"
+                    className="bg-gray-500 hover:bg-gray-600 active:bg-gray-700 text-white px-4 sm:px-6 py-3 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base"
                   >
                     {t('common.cancel')}
                   </button>
@@ -467,13 +494,13 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
 
           {/* Inspection Details Section */}
           {(selectedSchool || showAddSchool) && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold flex items-center">
-                <FileText className="w-5 h-5 mr-2 text-blue-600" />
-                {t('inspection.inspectionDetails')}
+            <div className="space-y-4 sm:space-y-6">
+              <h3 className="text-base sm:text-lg font-semibold flex items-center">
+                <FileText className="w-5 h-5 mr-2 text-blue-600 flex-shrink-0" />
+                <span className="break-words">{t('inspection.inspectionDetails')}</span>
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('inspection.inspectorName')} *
@@ -482,7 +509,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     type="text"
                     value={inspectionData.inspectorName}
                     onChange={(e) => setInspectionData({...inspectionData, inspectorName: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                     placeholder={t('inspection.placeholderInspectorName')}
                   />
                 </div>
@@ -495,7 +522,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     type="date"
                     value={inspectionData.inspectionDate}
                     onChange={(e) => setInspectionData({...inspectionData, inspectionDate: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                   />
                 </div>
 
@@ -506,7 +533,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                   <select
                     value={inspectionData.inspectionType}
                     onChange={(e) => setInspectionData({...inspectionData, inspectionType: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                   >
                     <option value="routine">{t('inspection.inspectionTypes.routine')}</option>
                     <option value="complaint">{t('inspection.inspectionTypes.complaint')}</option>
@@ -522,7 +549,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                   <select
                     value={inspectionData.overallRating}
                     onChange={(e) => setInspectionData({...inspectionData, overallRating: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                   >
                     <option value="">{t('inspection.selectRatingPlaceholder')}</option>
                     <option value="A">{t('inspection.ratings.a')}</option>
@@ -542,7 +569,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                   value={inspectionData.findings}
                   onChange={(e) => setInspectionData({...inspectionData, findings: e.target.value})}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                   placeholder={t('inspection.placeholderFindings')}
                 />
               </div>
@@ -555,7 +582,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                   value={inspectionData.violations}
                   onChange={(e) => setInspectionData({...inspectionData, violations: e.target.value})}
                   rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                   placeholder={t('inspection.placeholderViolations')}
                 />
               </div>
@@ -568,7 +595,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                   value={inspectionData.recommendations}
                   onChange={(e) => setInspectionData({...inspectionData, recommendations: e.target.value})}
                   rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                   placeholder={t('inspection.placeholderRecommendations')}
                 />
               </div>
@@ -578,12 +605,72 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('inspection.inspectionPhotos')}
                 </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-2">{t('inspection.uploadPhotos')}</p>
-                  <p className="text-xs text-gray-500 mb-4">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center min-h-[150px] sm:min-h-[180px] flex flex-col justify-center">
+                  <Camera className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+                  <p className="text-gray-600 mb-2 text-sm sm:text-base">{t('inspection.uploadPhotos')}</p>
+                  <p className="text-xs text-gray-500 mb-3 sm:mb-4 break-words px-2">
                     {t('inspection.photosStoredIn')}: inspectPhotos/school_{selectedSchool || 'new'}/inspection_{inspectionId.split('_')[1]}/
                   </p>
+                  
+                  {/* Mobile: Two separate buttons for camera and gallery */}
+                  {isMobile ? (
+                    <div className="flex flex-row flex-wrap gap-2 sm:gap-3 w-full mx-auto">
+                      {/* Camera Input - Mobile Only */}
+                      <input
+                        ref={cameraInputRef}
+                        type="file"
+                        id="photo-camera"
+                        accept="image/*"
+                        capture
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                        disabled={uploadingPhotos}
+                      />
+                      {/* Gallery Input - Mobile Only */}
+                      <input
+                        ref={galleryInputRef}
+                        type="file"
+                        id="photo-gallery"
+                        multiple
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                        disabled={uploadingPhotos}
+                      />
+                      
+                      {/* Take Photo Button */}
+                      <button 
+                        type="button"
+                        onClick={handleTakePhoto}
+                        disabled={uploadingPhotos}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm font-medium sm:flex-1 grow min-w-[140px] ${
+                          uploadingPhotos 
+                            ? 'bg-gray-400 cursor-not-allowed text-white' 
+                            : 'bg-green-600 active:bg-green-700 text-white shadow-md'
+                        }`}
+                      >
+                        <Camera className="w-5 h-5 flex-shrink-0" />
+                        <span className="whitespace-nowrap">Take Photo</span>
+                      </button>
+                      
+                      {/* Upload from Gallery Button */}
+                      <button 
+                        type="button"
+                        onClick={handleUploadFromGallery}
+                        disabled={uploadingPhotos}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm font-medium sm:flex-1 grow min-w-[140px] ${
+                          uploadingPhotos 
+                            ? 'bg-gray-400 cursor-not-allowed text-white' 
+                            : 'bg-blue-600 active:bg-blue-700 text-white shadow-md'
+                        }`}
+                      >
+                        <Upload className="w-5 h-5 flex-shrink-0" />
+                        <span className="whitespace-nowrap">Upload</span>
+                      </button>
+                    </div>
+                  ) : (
+                    /* Desktop: Single button */
+                    <>
                   <input
                     type="file"
                     id="photo-upload"
@@ -597,21 +684,23 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     type="button"
                     onClick={() => document.getElementById('photo-upload').click()}
                     disabled={uploadingPhotos}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
+                    className={`px-4 sm:px-6 py-3 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base ${
                       uploadingPhotos 
                         ? 'bg-gray-400 cursor-not-allowed text-white' 
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        : 'bg-blue-600 active:bg-blue-700 sm:hover:bg-blue-700 text-white'
                     }`}
                   >
                     {uploadingPhotos ? t('inspection.uploading') : t('inspection.chooseFiles')}
                   </button>
+                    </>
+                  )}
                 </div>
                 
                 {/* Display uploaded photos */}
                 {inspectionData.photos.length > 0 && (
                   <div className="mt-4">
                     <h4 className="text-sm font-medium text-gray-700 mb-2">{t('inspection.uploadedPhotos')}</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
                       {inspectionData.photos.map((photo, index) => (
                         <div key={photo.id || index} className="relative bg-white border rounded-lg p-2">
                           <img
@@ -622,7 +711,8 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                           <button
                             type="button"
                             onClick={() => removePhoto(index)}
-                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-6 h-6 sm:w-5 sm:h-5 flex items-center justify-center text-sm sm:text-xs active:bg-red-600 sm:hover:bg-red-600 touch-manipulation"
+                            aria-label="Remove photo"
                           >
                             ×
                           </button>
@@ -648,17 +738,17 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-4 pt-6 border-t">
+          {/* Action Buttons - Mobile Optimized */}
+          <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 sm:pt-6 border-t">
             <button
               onClick={onClose}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-4 sm:px-6 py-3 border border-gray-300 text-gray-700 rounded-lg active:bg-gray-50 sm:hover:bg-gray-50 transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base order-2 sm:order-1"
             >
               {t('common.cancel')}
             </button>
             <button
               onClick={handleInspectionSubmit}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
+              className="bg-blue-600 active:bg-blue-700 sm:hover:bg-blue-700 text-white px-4 sm:px-6 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base order-1 sm:order-2"
             >
               <Save className="w-5 h-5" />
               {t('inspection.saveInspection')}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, Edit, Eye, Filter, Download, Users, Phone, Mail, MapPin } from 'lucide-react';
+import { Search, Plus, Edit, Eye, Filter, Download, Users, Phone, Mail, MapPin, X } from 'lucide-react';
 
 const BeneficiaryManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,16 +85,16 @@ const BeneficiaryManagement = () => {
   };
 
   const BeneficiaryModal = ({ beneficiary, onClose }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Beneficiary Details</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            ✕
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 max-w-2xl w-full max-h-[calc(100vh-2rem)] sm:max-h-screen overflow-y-auto">
+        <div className="flex justify-between items-center mb-3 sm:mb-4">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900">Beneficiary Details</h2>
+          <button onClick={onClose} className="text-gray-500 active:text-gray-700 sm:hover:text-gray-700 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation" aria-label="Close">
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Beneficiary ID</label>
             <p className="text-gray-900">{beneficiary.id}</p>
@@ -152,26 +152,26 @@ const BeneficiaryManagement = () => {
           </div>
         </div>
         
-        <div className="mt-6 flex justify-end space-x-3">
-          <button className="btn-secondary">Edit Details</button>
-          <button onClick={onClose} className="btn-primary">Close</button>
+        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
+          <button className="btn-secondary w-full sm:w-auto min-h-[44px] touch-manipulation text-sm sm:text-base">Edit Details</button>
+          <button onClick={onClose} className="btn-primary w-full sm:w-auto min-h-[44px] touch-manipulation text-sm sm:text-base">Close</button>
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-4">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Beneficiary Management</h1>
-            <p className="text-gray-600">Manage and track beneficiaries across all schemes</p>
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Beneficiary Management</h1>
+            <p className="text-gray-600 text-sm sm:text-base">Manage and track beneficiaries across all schemes</p>
           </div>
           <button 
             onClick={() => setShowAddModal(true)}
-            className="btn-primary flex items-center"
+            className="btn-primary flex items-center w-full sm:w-auto min-h-[44px] touch-manipulation text-sm sm:text-base"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Beneficiary
@@ -180,55 +180,55 @@ const BeneficiaryManagement = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
           <div className="flex items-center">
-            <div className="bg-blue-500 p-3 rounded-lg">
-              <Users className="h-6 w-6 text-white" />
+            <div className="bg-blue-500 p-2.5 sm:p-3 rounded-lg flex-shrink-0">
+              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Beneficiaries</p>
-              <p className="text-2xl font-bold text-gray-900">{beneficiaries.length}</p>
+            <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Total Beneficiaries</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{beneficiaries.length}</p>
             </div>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
           <div className="flex items-center">
-            <div className="bg-green-500 p-3 rounded-lg">
-              <Users className="h-6 w-6 text-white" />
+            <div className="bg-green-500 p-2.5 sm:p-3 rounded-lg flex-shrink-0">
+              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Active</p>
-              <p className="text-2xl font-bold text-gray-900">
+            <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Active</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">
                 {beneficiaries.filter(b => b.status === 'Active').length}
               </p>
             </div>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
           <div className="flex items-center">
-            <div className="bg-yellow-500 p-3 rounded-lg">
-              <Users className="h-6 w-6 text-white" />
+            <div className="bg-yellow-500 p-2.5 sm:p-3 rounded-lg flex-shrink-0">
+              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Pending</p>
-              <p className="text-2xl font-bold text-gray-900">
+            <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Pending</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">
                 {beneficiaries.filter(b => b.status === 'Pending').length}
               </p>
             </div>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
           <div className="flex items-center">
-            <div className="bg-purple-500 p-3 rounded-lg">
-              <Users className="h-6 w-6 text-white" />
+            <div className="bg-purple-500 p-2.5 sm:p-3 rounded-lg flex-shrink-0">
+              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Completed</p>
-              <p className="text-2xl font-bold text-gray-900">
+            <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Completed</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">
                 {beneficiaries.filter(b => b.status === 'Completed').length}
               </p>
             </div>
@@ -237,9 +237,9 @@ const BeneficiaryManagement = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div className="flex-1 min-w-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -247,16 +247,16 @@ const BeneficiaryManagement = () => {
                 placeholder="Search by name or ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 input-field"
+                className="pl-10 input-field text-base"
               />
             </div>
           </div>
           
-          <div className="md:w-64">
+          <div className="w-full sm:w-48 lg:w-64">
             <select
               value={filterScheme}
               onChange={(e) => setFilterScheme(e.target.value)}
-              className="input-field"
+              className="input-field text-base w-full"
             >
               {schemes.map(scheme => (
                 <option key={scheme} value={scheme}>{scheme}</option>
@@ -264,7 +264,7 @@ const BeneficiaryManagement = () => {
             </select>
           </div>
           
-          <button className="btn-secondary flex items-center">
+          <button className="btn-secondary flex items-center justify-center min-h-[44px] touch-manipulation text-sm sm:text-base w-full sm:w-auto">
             <Download className="w-4 h-4 mr-2" />
             Export
           </button>
