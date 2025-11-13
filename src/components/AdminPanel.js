@@ -118,20 +118,20 @@ const AdminPanel = () => {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen gradient-bg pt-16">
-        <div className="container mx-auto px-4 py-8">
+      <div className="min-h-screen gradient-bg pt-14 sm:pt-16">
+        <div className="container mx-auto px-4 py-6 sm:py-8">
           <div className="max-w-md mx-auto">
-            <div className="glass-card p-8 text-center">
-              <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('admin.accessDenied')}</h2>
-              <p className="text-gray-600 mb-4">
+            <div className="glass-card p-4 sm:p-6 lg:p-8 text-center">
+              <Shield className="w-12 h-12 sm:w-16 sm:h-16 text-red-500 mx-auto mb-3 sm:mb-4" />
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{t('admin.accessDenied')}</h2>
+              <p className="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">
                 {t('admin.accessDeniedMsg')}
               </p>
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-600">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm">
+                <p className="text-red-600">
                   {t('admin.currentRole')}: <strong>{currentUser?.role || 'Unknown'}</strong>
                 </p>
-                <p className="text-sm text-red-600">
+                <p className="text-red-600">
                   {t('admin.requiredRole')}: <strong>admin</strong>
                 </p>
               </div>
@@ -143,67 +143,67 @@ const AdminPanel = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8 px-2 sm:px-4">
       {/* Header */}
-      <div className="glass-card p-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-              <Settings className="w-6 h-6 text-white" />
+      <div className="glass-card p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+          <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-white">{t('admin.title')}</h1>
-              <p className="text-gray-300">{t('admin.subtitle')}</p>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black break-words">{t('admin.title')}</h1>
+              <p className="text-gray-700 text-sm sm:text-base">{t('admin.subtitle')}</p>
             </div>
           </div>
-          <div className="flex items-center space-x-2 text-sm text-gray-300">
-            <User className="w-4 h-4" />
-            <span>{t('admin.welcome')}, {currentUser?.name}</span>
+          <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-700 whitespace-nowrap">
+            <User className="w-4 h-4 flex-shrink-0" />
+            <span className="truncate">{t('admin.welcome')}, {currentUser?.name}</span>
           </div>
         </div>
       </div>
 
       {/* Logo Management Section */}
-      <div className="glass-card p-8">
-        <div className="flex items-center space-x-3 mb-6">
-          <Image className="w-6 h-6 text-blue-600" />
-          <h2 className="text-2xl font-bold text-gray-900">{t('admin.logoManagement')}</h2>
+      <div className="glass-card p-4 sm:p-6 lg:p-8">
+        <div className="flex items-center space-x-3 mb-4 sm:mb-6">
+          <Image className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{t('admin.logoManagement')}</h2>
         </div>
 
         {/* Message Display */}
         {message.text && (
-          <div className={`mb-6 p-4 rounded-lg flex items-center space-x-2 ${
+          <div className={`mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg flex items-center space-x-2 text-sm sm:text-base ${
             message.type === 'success' 
               ? 'bg-green-50 border border-green-200 text-green-700' 
               : 'bg-red-50 border border-red-200 text-red-700'
           }`}>
             {message.type === 'success' ? (
-              <Check className="w-5 h-5" />
+              <Check className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
             ) : (
-              <AlertTriangle className="w-5 h-5" />
+              <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
             )}
-            <span>{message.text}</span>
+            <span className="break-words">{message.text}</span>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {/* Current Logo Display */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('admin.currentLogo')}</h3>
-            <div className="bg-gray-50 rounded-lg p-6 text-center">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">{t('admin.currentLogo')}</h3>
+            <div className="bg-gray-50 rounded-lg p-4 sm:p-6 text-center">
               {currentLogo ? (
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <img
                     src={currentLogo}
                     alt="Current Portal Logo"
-                    className="max-h-32 mx-auto object-contain"
+                    className="max-h-24 sm:max-h-32 mx-auto object-contain"
                   />
-                  <p className="text-sm text-gray-600">{t('admin.customLogoActive')}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('admin.customLogoActive')}</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <KarnatakaLogo size="lg" className="mx-auto" />
-                  <p className="text-sm text-gray-600">{t('admin.defaultLogo')}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('admin.defaultLogo')}</p>
                 </div>
               )}
             </div>
@@ -211,13 +211,13 @@ const AdminPanel = () => {
 
           {/* Logo Upload Section */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('admin.uploadNewLogo')}</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">{t('admin.uploadNewLogo')}</h3>
             
             {/* File Upload Area */}
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-4">
-              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 mb-2">{t('admin.uploadLogoMsg')}</p>
-              <p className="text-xs text-gray-500 mb-4">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center mb-3 sm:mb-4">
+              <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+              <p className="text-gray-600 mb-2 text-sm sm:text-base">{t('admin.uploadLogoMsg')}</p>
+              <p className="text-xs text-gray-500 mb-3 sm:mb-4">
                 {t('admin.supportedFormats')}
               </p>
               <input
@@ -229,7 +229,7 @@ const AdminPanel = () => {
               />
               <button
                 onClick={() => document.getElementById('logo-upload').click()}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                className="bg-blue-600 active:bg-blue-700 sm:hover:bg-blue-700 text-white px-4 py-2.5 sm:py-2 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base"
               >
                 {t('admin.chooseFile')}
               </button>
@@ -237,23 +237,23 @@ const AdminPanel = () => {
 
             {/* Preview Section */}
             {logoPreview && (
-              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
                 <h4 className="text-sm font-medium text-gray-700 mb-2">{t('admin.preview')}</h4>
-                <div className="flex items-center justify-center bg-white rounded border p-4 mb-3">
+                <div className="flex items-center justify-center bg-white rounded border p-3 sm:p-4 mb-3">
                   <img
                     src={logoPreview}
                     alt="Logo Preview"
-                    className="max-h-24 object-contain"
+                    className="max-h-20 sm:max-h-24 object-contain"
                   />
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                   <button
                     onClick={handleSaveLogo}
                     disabled={isUploading}
-                    className={`flex-1 flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                    className={`flex-1 flex items-center justify-center space-x-2 px-4 py-2.5 sm:py-2 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base ${
                       isUploading
                         ? 'bg-gray-400 cursor-not-allowed text-white'
-                        : 'bg-green-600 hover:bg-green-700 text-white'
+                        : 'bg-green-600 active:bg-green-700 sm:hover:bg-green-700 text-white'
                     }`}
                   >
                     {isUploading ? (
@@ -270,7 +270,7 @@ const AdminPanel = () => {
                   </button>
                   <button
                     onClick={handleCancelUpload}
-                    className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                    className="px-4 py-2.5 sm:py-2 bg-gray-500 active:bg-gray-600 sm:hover:bg-gray-600 text-white rounded-lg transition-colors min-h-[44px] touch-manipulation flex items-center justify-center"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -280,10 +280,10 @@ const AdminPanel = () => {
 
             {/* Reset Option */}
             {currentLogo && (
-              <div className="border-t pt-4">
+              <div className="border-t pt-3 sm:pt-4">
                 <button
                   onClick={handleResetLogo}
-                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 sm:py-2 bg-red-600 active:bg-red-700 sm:hover:bg-red-700 text-white rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base"
                 >
                   <RefreshCw className="w-4 h-4" />
                   <span>{t('admin.resetToDefault')}</span>
@@ -294,9 +294,9 @@ const AdminPanel = () => {
         </div>
 
         {/* Logo Guidelines */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="mt-4 sm:mt-6 lg:mt-8 bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
           <h4 className="text-sm font-medium text-blue-800 mb-2">{t('admin.logoGuidelines')}</h4>
-          <ul className="text-sm text-blue-700 space-y-1">
+          <ul className="text-xs sm:text-sm text-blue-700 space-y-1">
             <li>• {t('admin.guidelineSize')}</li>
             <li>• {t('admin.guidelineFormat')}</li>
             <li>• {t('admin.guidelineReadable')}</li>
@@ -307,24 +307,24 @@ const AdminPanel = () => {
       </div>
 
       {/* System Information */}
-      <div className="glass-card p-8">
-        <div className="flex items-center space-x-3 mb-6">
-          <Eye className="w-6 h-6 text-green-600" />
-          <h2 className="text-2xl font-bold text-gray-900">{t('admin.systemInfo')}</h2>
+      <div className="glass-card p-4 sm:p-6 lg:p-8">
+        <div className="flex items-center space-x-3 mb-4 sm:mb-6">
+          <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 flex-shrink-0" />
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{t('admin.systemInfo')}</h2>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">{t('admin.portalVersion')}</h4>
-            <p className="text-2xl font-bold text-blue-600">v1.0.0</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <h4 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">{t('admin.portalVersion')}</h4>
+            <p className="text-xl sm:text-2xl font-bold text-blue-600">v1.0.0</p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">{t('admin.lastUpdated')}</h4>
-            <p className="text-sm text-gray-600">{new Date().toLocaleDateString()}</p>
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <h4 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">{t('admin.lastUpdated')}</h4>
+            <p className="text-xs sm:text-sm text-gray-600">{new Date().toLocaleDateString()}</p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">{t('admin.adminUser')}</h4>
-            <p className="text-sm text-gray-600">{currentUser?.name}</p>
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4 sm:col-span-2 lg:col-span-1">
+            <h4 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">{t('admin.adminUser')}</h4>
+            <p className="text-xs sm:text-sm text-gray-600 break-words">{currentUser?.name}</p>
           </div>
         </div>
       </div>

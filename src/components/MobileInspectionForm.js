@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   X,
   ChevronLeft,
   Camera,
   Check,
-  AlertCircle,
   Upload,
   Trash2
 } from 'lucide-react';
-import { detectDevice, getDeviceStyles, triggerHaptic } from '../utils/deviceDetection';
+import { detectDevice, triggerHaptic } from '../utils/deviceDetection';
 import { useI18n } from '../i18n/I18nProvider';
 
 const MobileInspectionForm = ({ onClose, schoolId, schoolName }) => {
@@ -25,13 +24,16 @@ const MobileInspectionForm = ({ onClose, schoolId, schoolName }) => {
   });
 
   const device = detectDevice();
-  const styles = getDeviceStyles();
   const { t } = useI18n();
+  const cameraInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
 
   const totalSteps = 4;
+  const takePhotoLabel = t('Take Photo') || 'Take Photo';
+  const uploadLabel = t('Upload') || 'Upload';
 
   const handlePhotoCapture = (e) => {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files || []);
     triggerHaptic('light');
     
     const newPhotos = files.map((file, index) => ({
@@ -46,6 +48,24 @@ const MobileInspectionForm = ({ onClose, schoolId, schoolName }) => {
       ...prev,
       photos: [...prev.photos, ...newPhotos]
     }));
+
+    if (e.target) {
+      e.target.value = '';
+    }
+  };
+
+  const handleOpenCamera = () => {
+    triggerHaptic('light');
+    if (cameraInputRef.current) {
+      cameraInputRef.current.click();
+    }
+  };
+
+  const handleOpenGallery = () => {
+    triggerHaptic('light');
+    if (galleryInputRef.current) {
+      galleryInputRef.current.click();
+    }
   };
 
   const removePhoto = (photoId) => {
@@ -482,26 +502,51 @@ const MobileInspectionForm = ({ onClose, schoolId, schoolName }) => {
                   {t('inspection.inspectionPhotos')}
                 </label>
                 
-                {/* Camera Button */}
-                <label className="block">
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  {...(device.isIOS ? { capture: true } : { capture: 'environment' })}
+                  onChange={handlePhotoCapture}
+                  className="hidden"
+                />
                   <input
+                  ref={galleryInputRef}
                     type="file"
                     accept="image/*"
-                    capture="environment"
                     multiple
                     onChange={handlePhotoCapture}
                     className="hidden"
                   />
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-white active:bg-gray-50 transition-colors">
-                    <Camera className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-white">
+                  <Camera className="w-10 h-10 text-gray-400 mx-auto mb-3" />
                     <p className="text-sm font-medium text-gray-700 mb-1">
                       {t('inspection.uploadPhotos')}
                     </p>
                     <p className="text-xs text-gray-500">
                       Tap to capture or upload
                     </p>
+
+                  <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                    <button
+                      type="button"
+                      onClick={handleOpenCamera}
+                      className="flex-1 min-w-[140px] bg-green-600 active:bg-green-700 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
+                    >
+                      <Camera className="w-5 h-5" />
+                      {takePhotoLabel}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleOpenGallery}
+                      className="flex-1 min-w-[140px] bg-blue-600 active:bg-blue-700 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
+                    >
+                      <Upload className="w-5 h-5" />
+                      {uploadLabel}
+                    </button>
                   </div>
-                </label>
+                  </div>
 
                 {/* Photo Grid */}
                 {formData.photos.length > 0 && (

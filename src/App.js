@@ -8,6 +8,7 @@ import Reports from './components/Reports';
 import Profile from './components/Profile';
 import AdminPanel from './components/AdminPanel';
 import Login from './components/Login';
+import InstallPWA from './components/InstallPWA';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -24,8 +25,8 @@ const InspectionPage = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-bg pt-16">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen gradient-bg">
+      <div className="container mx-auto px-4">
         <InspectionForm onClose={handleClose} isModal={false} />
       </div>
     </div>
@@ -67,7 +68,7 @@ function App() {
     <Router>
       <div className="min-h-screen gradient-bg">
         {currentUser && <Navbar currentUser={currentUser} onLogout={handleLogout} />}
-        <main className={currentUser ? "md:ml-64 pt-16 px-4 py-8" : ""}>
+        <main className={currentUser ? "md:ml-64 pt-14 sm:pt-16 px-4 py-8" : ""}>
           <Routes>
             <Route 
               path="/login" 
@@ -123,6 +124,7 @@ function App() {
             />
           </Routes>
         </main>
+        <InstallPWA />
       </div>
     </Router>
   );

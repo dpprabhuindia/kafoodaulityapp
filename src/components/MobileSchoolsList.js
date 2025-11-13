@@ -6,12 +6,15 @@ import {
   ChevronRight,
   ChevronDown,
   X,
-  Store
+  Store,
+  Eye,
+  Pencil,
+  ClipboardList
 } from 'lucide-react';
 import { detectDevice, triggerHaptic } from '../utils/deviceDetection';
 import { useI18n } from '../i18n/I18nProvider';
 
-const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect }) => {
+const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect, onNewInspection, onAddSchool, onViewSchool, onEditSchool }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('all');
   const device = detectDevice();
@@ -44,56 +47,111 @@ const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect }) => {
     return colors[level] || 'bg-gray-100 text-gray-800';
   };
 
+  const getStatusColor = (status) => {
+    const colors = {
+      'Active': 'bg-green-100 text-green-700',
+      'Under Review': 'bg-yellow-100 text-yellow-700',
+      'Suspended': 'bg-red-100 text-red-700'
+    };
+    return colors[status] || 'bg-gray-100 text-gray-700';
+  };
+
+  const handleView = (school) => {
+    triggerHaptic('light');
+    if (onViewSchool) {
+      onViewSchool(school);
+    } else if (onSchoolSelect) {
+      onSchoolSelect(school);
+    }
+  };
+
+  const handleEdit = (school) => {
+    triggerHaptic('medium');
+    if (onEditSchool) {
+      onEditSchool(school);
+    }
+  };
+
+  const callInspect = (schoolId) => {
+    triggerHaptic('medium');
+    onInspect && onInspect(schoolId);
+  };
+
+  const callNewInspection = () => {
+    triggerHaptic('light');
+    onNewInspection && onNewInspection();
+  };
+
+  const callAddSchool = () => {
+    triggerHaptic('light');
+    onAddSchool && onAddSchool();
+  };
+
   // iOS Style
   if (device.isIOS) {
     return (
-      <div className="min-h-screen bg-gray-50 pb-20">
+      <div className="min-h-screen bg-gray-50">
         {/* Sticky Header */}
         <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-gray-200 px-4 py-3">
-          <h1 className="text-xl font-bold text-gray-900 mb-3">{t('schools.title')}</h1>
+          <h1 className="text-xl font-bold text-gray-900 mb-3">Karnataka Government School Management</h1>
           
           {/* Search and Filter Row */}
-          <div className="flex gap-2">
-            {/* Search Bar */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder={t('schools.searchPlaceholder')}
-                className="w-full pl-10 pr-10 py-3 bg-gray-100 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all text-base"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => {
-                    setSearchTerm('');
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              {/* Search Bar */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search government schools..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-0 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all text-sm"
+                />
+              </div>
+
+              {/* Status Dropdown */}
+              <div className="relative">
+                <select
+                  value={selectedLevel}
+                  onChange={(e) => {
+                    setSelectedLevel(e.target.value);
                     triggerHaptic('light');
                   }}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  className="appearance-none bg-gray-100 border-0 rounded-lg pl-3 pr-8 py-2.5 text-sm font-medium text-gray-700 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer min-w-[100px]"
                 >
-                  <X className="w-5 h-5 text-gray-400" />
-                </button>
-              )}
-            </div>
+                  <option value="all">All Status</option>
+                  <option value="State Level">State Level</option>
+                  <option value="District Level">District Level</option>
+                  <option value="Taluk Level">Taluk Level</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
 
-            {/* Category Dropdown */}
-            <div className="relative">
-              <select
-                value={selectedLevel}
-                onChange={(e) => {
-                  setSelectedLevel(e.target.value);
-                  triggerHaptic('light');
-                }}
-                className="appearance-none bg-gray-100 border-0 rounded-xl pl-4 pr-10 py-3 text-sm font-medium text-gray-700 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer"
-              >
-                <option value="all">{t('schools.allLevels')}</option>
-                <option value="State Level">{t('inspection.levels.state')}</option>
-                <option value="District Level">{t('inspection.levels.district')}</option>
-                <option value="Taluk Level">{t('inspection.levels.taluk')}</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+              {/* More Filters Button */}
+              <button className="bg-gray-100 px-3 py-2.5 rounded-lg flex items-center gap-1 text-sm font-medium text-gray-700 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+                </svg>
+                More Filters
+              </button>
             </div>
+          </div>
+
+          {/* Action Buttons Row */}
+          <div className="flex gap-2">
+            <button
+              onClick={callNewInspection}
+              className="flex-1 bg-green-600 active:bg-green-700 text-white py-3 rounded-xl font-semibold text-sm shadow-md"
+            >
+              New Inspection
+            </button>
+            <button
+              onClick={callAddSchool}
+              className="flex-1 bg-blue-600 active:bg-blue-700 text-white py-3 rounded-xl font-semibold text-sm shadow-md"
+            >
+              Add School
+            </button>
           </div>
         </div>
 
@@ -121,10 +179,7 @@ const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect }) => {
                   {schoolsOfLevel.map((school) => (
                     <div
                       key={school.id}
-                      onClick={() => {
-                        triggerHaptic('light');
-                        onSchoolSelect(school);
-                      }}
+                      onClick={() => handleView(school)}
                       className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 active:scale-98 transition-transform"
                     >
                       <div className="flex items-start justify-between mb-3">
@@ -136,6 +191,9 @@ const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect }) => {
                             </span>
                             <span className={`text-xs px-2 py-1 rounded-lg border font-bold ${getRatingColor(school.rating)}`}>
                               {school.rating}
+                            </span>
+                            <span className={`text-xs px-2 py-1 rounded-full font-medium ${getStatusColor(school.status)}`}>
+                              {school.status}
                             </span>
                           </div>
                         </div>
@@ -151,16 +209,46 @@ const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect }) => {
                           <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
                           <span>{school.phone}</span>
                         </div>
-                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                          <span className="text-xs text-gray-500">{t('schools.lastPrefix')} {school.lastInspection}</span>
+                        <div className="grid grid-cols-2 gap-y-1 pt-3 border-t border-gray-100 text-xs text-gray-500">
+                          <span className="font-medium text-gray-600">License</span>
+                          <span>{school.licenseNumber}</span>
+                          <span className="font-medium text-gray-600">{t('schools.lastPrefix')}</span>
+                          <span>{school.lastInspection}</span>
+                          <span className="font-medium text-gray-600">{t('schools.card.violations') || 'Violations'}</span>
+                          <span className={school.violations > 0 ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold'}>
+                            {school.violations}
+                          </span>
+                        </div>
+
+                        <div className="mt-3 flex items-center gap-2 text-xs font-medium">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              triggerHaptic('medium');
-                              onInspect(school.id);
+                              handleView(school);
                             }}
-                            className="px-3 py-1.5 bg-blue-500 text-white text-xs font-medium rounded-lg active:scale-95 transition-transform"
+                            className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg flex items-center justify-center gap-1 active:bg-gray-200 transition-colors"
                           >
+                            <Eye className="w-4 h-4" />
+                            {t('common.view') || 'View'}
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(school);
+                            }}
+                            className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg flex items-center justify-center gap-1 active:bg-gray-200 transition-colors"
+                          >
+                            <Pencil className="w-4 h-4" />
+                            {t('common.edit') || 'Edit'}
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              callInspect(school.id);
+                            }}
+                            className="flex-1 bg-blue-500 text-white py-2 rounded-lg flex items-center justify-center gap-1 active:bg-blue-600 transition-colors"
+                          >
+                            <ClipboardList className="w-4 h-4" />
                             {t('schools.inspect')}
                           </button>
                         </div>
@@ -178,6 +266,8 @@ const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect }) => {
             <p className="text-gray-500">{t('schools.noneFound')}</p>
           </div>
         )}
+
+
       </div>
     );
   }
@@ -185,13 +275,13 @@ const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect }) => {
   // Android Material Design Style
   if (device.isAndroid) {
     return (
-      <div className="min-h-screen bg-gray-100 pb-20">
+      <div className="min-h-screen bg-gray-100">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-white shadow-sm px-4 py-3">
           <h1 className="text-lg font-bold text-gray-900 mb-3">{t('schools.title')}</h1>
           
           {/* Search and Filter Row */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-3">
             {/* Search Bar */}
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -233,6 +323,22 @@ const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect }) => {
               <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
           </div>
+
+          {/* Action Buttons Row */}
+          <div className="flex gap-2">
+            <button
+              onClick={callNewInspection}
+              className="flex-1 bg-green-600 active:bg-green-700 text-white py-2.5 rounded-lg font-medium text-sm"
+            >
+              {t('schools.newInspection') || 'New Inspection'}
+            </button>
+            <button
+              onClick={callAddSchool}
+              className="flex-1 bg-blue-600 active:bg-blue-700 text-white py-2.5 rounded-lg font-medium text-sm"
+            >
+              {t('establishments.buttons.addSchool') || 'Add School'}
+            </button>
+          </div>
         </div>
 
         {/* Schools List (Grouped by Level) */}
@@ -251,10 +357,7 @@ const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect }) => {
                   {schoolsOfLevel.map((school) => (
                     <div
                       key={school.id}
-                      onClick={() => {
-                        triggerHaptic('light');
-                        onSchoolSelect(school);
-                      }}
+                      onClick={() => handleView(school)}
                       className="bg-white rounded-lg p-3 shadow-sm border border-gray-200 active:shadow-md transition-shadow"
                     >
                       <div className="flex items-start justify-between mb-2">
@@ -266,6 +369,9 @@ const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect }) => {
                             </span>
                             <span className={`text-[11px] px-2 py-0.5 rounded border font-bold ${getRatingColor(school.rating)}`}>
                               {school.rating}
+                            </span>
+                            <span className={`text-[11px] px-2 py-0.5 rounded font-medium ${getStatusColor(school.status)}`}>
+                              {school.status}
                             </span>
                           </div>
                         </div>
@@ -281,16 +387,46 @@ const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect }) => {
                           <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
                           <span className="text-xs">{school.phone}</span>
                         </div>
-                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                          <span className="text-xs text-gray-500">{t('schools.lastPrefix')} {school.lastInspection}</span>
+                        <div className="grid grid-cols-2 gap-y-1 pt-2 border-t border-gray-100 text-[11px] text-gray-500">
+                          <span className="font-medium text-gray-600">License</span>
+                          <span>{school.licenseNumber}</span>
+                          <span className="font-medium text-gray-600">{t('schools.lastPrefix')}</span>
+                          <span>{school.lastInspection}</span>
+                          <span className="font-medium text-gray-600">{t('schools.card.violations') || 'Violations'}</span>
+                          <span className={school.violations > 0 ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold'}>
+                            {school.violations}
+                          </span>
+                        </div>
+
+                        <div className="mt-3 flex items-center gap-2 text-[11px] font-medium">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              triggerHaptic('medium');
-                              onInspect(school.id);
+                              handleView(school);
                             }}
-                            className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded active:shadow-lg transition-shadow uppercase"
+                            className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg flex items-center justify-center gap-1 active:bg-gray-200 transition-colors"
                           >
+                            <Eye className="w-4 h-4" />
+                            {t('common.view') || 'View'}
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(school);
+                            }}
+                            className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg flex items-center justify-center gap-1 active:bg-gray-200 transition-colors"
+                          >
+                            <Pencil className="w-4 h-4" />
+                            {t('common.edit') || 'Edit'}
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              callInspect(school.id);
+                            }}
+                            className="flex-1 bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center gap-1 active:bg-blue-700 transition-colors uppercase"
+                          >
+                            <ClipboardList className="w-4 h-4" />
                             {t('schools.inspect')}
                           </button>
                         </div>
@@ -308,6 +444,8 @@ const MobileSchoolsList = ({ schools, onSchoolSelect, onInspect }) => {
             <p className="text-gray-500 text-sm">{t('schools.noneFound')}</p>
           </div>
         )}
+
+
       </div>
     );
   }

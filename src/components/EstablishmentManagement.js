@@ -988,7 +988,7 @@ const EstablishmentManagement = () => {
       {/* Header */}
       <div className="glass-card p-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-white">Karnataka Government School Management</h1>
+          <h1 className="text-3xl font-bold text-black">Karnataka Government School Management</h1>
           <div className="flex gap-3">
             <button
               onClick={() => setShowAddModal(true)}
@@ -1058,7 +1058,7 @@ const EstablishmentManagement = () => {
           if (items.length === 0) return null;
           return (
             <div key={level} className="space-y-3">
-              <div className="text-sm font-semibold text-gray-200 uppercase tracking-wide px-1">{label}</div>
+              <div className="text-sm font-semibold text-black uppercase tracking-wide px-1">{label}</div>
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {items.map((establishment) => (
                   <div key={establishment.id} className="glass-card p-6 hover:shadow-xl transition-all duration-300">
