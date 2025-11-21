@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, FileText, BarChart3, LogOut, User, Store, TrendingUp, Settings } from 'lucide-react';
+import { Menu, X, FileText, BarChart3, LogOut, User, Store, TrendingUp, Settings, Camera } from 'lucide-react';
 import KarnatakaLogo from './KarnatakaLogo';
 import { useI18n } from '../i18n/I18nProvider';
 
@@ -32,6 +32,7 @@ const Navbar = ({ currentUser, onLogout }) => {
     { key: 'Dashboard', href: '/', icon: BarChart3 },
     { key: 'NewInspection', href: '/audit', icon: FileText },
     { key: 'Schools', href: '/establishments', icon: Store },
+    { key: 'WardenPhotos', href: '/warden-photos', icon: Camera },
     { key: 'Reports', href: '/reports', icon: TrendingUp },
     { key: 'Profile', href: '/profile', icon: User },
   ];

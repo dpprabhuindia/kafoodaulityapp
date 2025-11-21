@@ -9,6 +9,7 @@ import Profile from './components/Profile';
 import AdminPanel from './components/AdminPanel';
 import Login from './components/Login';
 import InstallPWA from './components/InstallPWA';
+import WardenPhotos from './components/WardenPhotos';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -68,7 +69,7 @@ function App() {
     <Router>
       <div className="min-h-screen gradient-bg">
         {currentUser && <Navbar currentUser={currentUser} onLogout={handleLogout} />}
-        <main className={currentUser ? "md:ml-64 pt-14 sm:pt-16 px-4 py-8" : ""}>
+        <main className={currentUser ? "md:ml-64 pt-14 sm:pt-16 px-1 py-8" : ""}>
           <Routes>
             <Route 
               path="/login" 
@@ -119,6 +120,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AdminPanel />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/warden-photos" 
+              element={
+                <ProtectedRoute>
+                  <WardenPhotos />
                 </ProtectedRoute>
               } 
             />
