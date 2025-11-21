@@ -13,7 +13,7 @@ import {
   Users,
   Upload
 } from 'lucide-react';
-import { savePhotoToLocal, deletePhoto, ensureDirectoryExists } from '../utils/photoStorage';
+import { uploadPhoto, deletePhoto, ensureDirectoryExists } from '../utils/unifiedPhotoStorage';
 import { useI18n } from '../i18n/I18nProvider';
 import { detectDevice } from '../utils/deviceDetection';
 
@@ -149,7 +149,15 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
       // Process each file
       const photoPromises = files.map(async (file) => {
         try {
-          const savedPhoto = await savePhotoToLocal(file, schoolId, inspectionId);
+          const savedPhoto = await uploadPhoto(
+            file, 
+            schoolId, 
+            inspectionId, 
+            'inspection',
+            null,
+            inspectionData.inspectorName || 'Inspector',
+            `Inspection Photo - ${file.name}`
+          );
           return {
             id: savedPhoto.id,
             file: file,
@@ -159,7 +167,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
             size: savedPhoto.size,
             preview: savedPhoto.url,
             uploadDate: new Date().toISOString(),
-            localPath: `inspectPhotos/school_${schoolId}/inspection_${inspectionId}/${savedPhoto.filename}`
+            localPath: savedPhoto.path
           };
         } catch (error) {
           console.error('Error uploading photo:', file.name, error);
@@ -189,12 +197,21 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
     }
   };
 
-  const removePhoto = (index) => {
+  const removePhoto = async (index) => {
     const photoToRemove = inspectionData.photos[index];
     
-    // Delete from storage if it has an ID (was successfully uploaded)
+    // Delete from database if it has an ID (was successfully uploaded)
     if (photoToRemove && photoToRemove.id) {
-      deletePhoto(photoToRemove.id);
+      try {
+        await deletePhoto(
+          photoToRemove.id, 
+          selectedSchool || 'new_school', 
+          inspectionId, 
+          'inspection'
+        );
+      } catch (error) {
+        console.error('Error deleting photo from database:', error);
+      }
     }
     
     // Remove from state
@@ -245,7 +262,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
     existingInspections.push(inspectionSubmissionData);
     localStorage.setItem('inspections', JSON.stringify(existingInspections));
     
-    alert(`${t('inspection.alerts.inspectionSaved')}\n\n${t('inspection.alerts.photosStoredIn')}\n${inspectionSubmissionData.photos.map(p => p.localPath).join('\n')}`);
+    alert(`${t('inspection.alerts.inspectionSaved')}\n\nPhotos stored in database: ${inspectionSubmissionData.photos.length} photos`);
     onClose();
   };
 

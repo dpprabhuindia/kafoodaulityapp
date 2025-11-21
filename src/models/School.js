@@ -94,6 +94,41 @@ const schoolSchema = new mongoose.Schema({
       default: 'Available'
     }
   }],
+  level: {
+    type: String,
+    enum: ['State Level', 'District Level', 'Taluk Level'],
+    default: 'State Level'
+  },
+  legacyId: {
+    type: Number,
+    index: true,
+    sparse: true
+  },
+  photos: [{
+    filename: String,
+    originalName: String,
+    path: String,
+    url: String,
+    size: Number,
+    caption: String,
+    facilityType: String,
+    inspector: String,
+    inspectionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Inspection'
+    },
+    photoType: {
+      type: String,
+      enum: ['inspection', 'facility', 'general'],
+      default: 'facility'
+    },
+    data: String, // Base64 encoded image data
+    mimeType: String,
+    uploadDate: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   createdAt: {
     type: Date,
     default: Date.now
@@ -115,5 +150,6 @@ schoolSchema.index({ name: 1, location: 1 });
 schoolSchema.index({ licenseNumber: 1 });
 schoolSchema.index({ status: 1 });
 schoolSchema.index({ rating: 1 });
+schoolSchema.index({ legacyId: 1 }, { sparse: true });
 
 module.exports = mongoose.model('School', schoolSchema);

@@ -44,7 +44,17 @@ const inspectionSchema = new mongoose.Schema({
     filename: String,
     originalName: String,
     path: String,
+    url: String,
     size: Number,
+    caption: String,
+    inspector: String,
+    photoType: {
+      type: String,
+      enum: ['inspection', 'facility', 'general'],
+      default: 'inspection'
+    },
+    data: String, // Base64 encoded image data
+    mimeType: String,
     uploadDate: {
       type: Date,
       default: Date.now
