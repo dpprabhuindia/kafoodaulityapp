@@ -32,17 +32,17 @@ if ('serviceWorker' in navigator) {
 }
 
 // Handle app installation prompt
+// Note: We don't preventDefault here - let InstallPWA component handle it
+// This allows the browser's default banner to show if our custom prompt isn't used
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
-  // Prevent Chrome 67 and earlier from automatically showing the prompt
-  e.preventDefault();
   // Stash the event so it can be triggered later
   deferredPrompt = e;
   // Show install button or notification
   console.log('App can be installed');
   
-  // You can show a custom install button here
-  // For example, dispatch a custom event that your App component can listen to
+  // Dispatch a custom event that InstallPWA component can listen to
+  // The component will handle preventDefault() when it's ready to show custom UI
   window.dispatchEvent(new CustomEvent('pwa-installable', { detail: deferredPrompt }));
 });
 
