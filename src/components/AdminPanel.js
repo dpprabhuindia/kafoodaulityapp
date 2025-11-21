@@ -10,9 +10,11 @@ import {
   Eye,
   X,
   Check,
-  AlertTriangle
+  AlertTriangle,
+  Database
 } from 'lucide-react';
 import KarnatakaLogo from './KarnatakaLogo';
+import PhotoMigration from './PhotoMigration';
 import { useI18n } from '../i18n/I18nProvider';
 
 const AdminPanel = () => {
@@ -22,6 +24,7 @@ const AdminPanel = () => {
   const [currentLogo, setCurrentLogo] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [showPhotoMigration, setShowPhotoMigration] = useState(false);
   const { t } = useI18n();
 
   useEffect(() => {
@@ -306,6 +309,43 @@ const AdminPanel = () => {
         </div>
       </div>
 
+      {/* Photo Storage Management */}
+      <div className="glass-card p-4 sm:p-6 lg:p-8">
+        <div className="flex items-center space-x-3 mb-4 sm:mb-6">
+          <Database className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 flex-shrink-0" />
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Photo Storage Management</h2>
+        </div>
+        
+        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+          <h3 className="text-base sm:text-lg font-semibold text-purple-900 mb-2">Database Storage Migration</h3>
+          <p className="text-purple-800 text-sm sm:text-base mb-4">
+            Migrate photos from browser localStorage to the database for better performance and reliability.
+            This will move all inspection and facility photos to secure database storage.
+          </p>
+          
+          <button
+            onClick={() => setShowPhotoMigration(true)}
+            className="bg-purple-600 hover:bg-purple-700 active:bg-purple-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg flex items-center gap-2 transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base"
+          >
+            <Database className="w-4 h-4 sm:w-5 sm:h-5" />
+            Open Photo Migration Tool
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <h4 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">Storage Type</h4>
+            <p className="text-sm text-gray-600">Database (MongoDB)</p>
+            <p className="text-xs text-green-600 mt-1">✓ Recommended</p>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <h4 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">Legacy Storage</h4>
+            <p className="text-sm text-gray-600">Browser localStorage</p>
+            <p className="text-xs text-orange-600 mt-1">⚠ Limited capacity</p>
+          </div>
+        </div>
+      </div>
+
       {/* System Information */}
       <div className="glass-card p-4 sm:p-6 lg:p-8">
         <div className="flex items-center space-x-3 mb-4 sm:mb-6">
@@ -328,6 +368,11 @@ const AdminPanel = () => {
           </div>
         </div>
       </div>
+
+      {/* Photo Migration Modal */}
+      {showPhotoMigration && (
+        <PhotoMigration onClose={() => setShowPhotoMigration(false)} />
+      )}
     </div>
   );
 };

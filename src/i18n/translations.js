@@ -74,7 +74,9 @@ export const translations = {
         kitchenPhotos: 'Kitchen Photos',
         storeroomPhotos: 'Store Room Photos',
         badgeInspection: '🔍 Inspection',
-        badgeArchive: '📁 Archive'
+        badgeArchive: '📁 Archive',
+        emptyState: 'No photos found',
+        emptyHint: 'Upload inspection or facility photos to get started.'
       },
       photoModal: {
         inspector: 'Inspector:',
@@ -99,7 +101,11 @@ export const translations = {
           classroom: '📚 Classroom',
         },
         uploadCta: 'Upload {type} facility photos',
-        storedInPrefix: 'Photos will be stored in:'
+        storedInPrefix: 'Photos will be stored in:',
+        recentPhotos: 'Recent Photos',
+        noneForType: 'No photos for this facility yet.',
+        successUpload: 'Successfully uploaded {count} {label} photos.',
+        failedUpload: 'Error uploading facility photos. Please try again.'
       }
     },
     nav: {
@@ -174,7 +180,10 @@ export const translations = {
       searchPlaceholder: 'Search schools...',
       allLevels: 'All Levels',
       lastPrefix: 'Last:',
+      lastInspection: 'Last Inspection',
       inspect: 'Inspect',
+      newInspection: 'Start New Inspection',
+      rating: 'Rating {rating}',
       noneFound: 'No schools found',
     },
     admin: {
@@ -283,6 +292,8 @@ export const translations = {
       info: 'Information',
       cancel: 'Cancel',
       students: 'students',
+      viewAll: 'View All',
+      notAvailable: 'Not available',
     },
     inspection: {
       title: 'New Food Safety Inspection',
@@ -312,6 +323,8 @@ export const translations = {
       recommendations: 'Recommendations',
       inspectionPhotos: 'Inspection Photos',
       uploadPhotos: 'Upload inspection photos',
+      takePhoto: 'Take Photo',
+      upload: 'Upload',
       photosStoredIn: 'Photos will be stored in',
       chooseFiles: 'Choose Files',
       uploading: 'Uploading...',
@@ -477,7 +490,9 @@ export const translations = {
         kitchenPhotos: 'ಅಡುಗೆಮನೆಯ ಫೋಟೋಗಳು',
         storeroomPhotos: 'ಸಂಗ್ರಹ ಕೊಠಡಿ ಫೋಟೋಗಳು',
         badgeInspection: '🔍 ಪರಿಶೀಲನೆ',
-        badgeArchive: '📁 ಆರ್ಕೈವ್'
+        badgeArchive: '📁 ಆರ್ಕೈವ್',
+        emptyState: 'ಯಾವುದೇ ಫೋಟೋಗಳು ಕಂಡುಬಂದಿಲ್ಲ',
+        emptyHint: 'ಪ್ರಾರಂಭಿಸಲು ಪರಿಶೀಲನೆ ಅಥವಾ ಸೌಲಭ್ಯ ಫೋಟೋಗಳನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಿ.'
       },
       photoModal: {
         inspector: 'ಪರಿಶೀಲಕ:',
@@ -502,7 +517,11 @@ export const translations = {
           classroom: '📚 ತರಗತಿ ಕೊಠಡಿ',
         },
         uploadCta: '{type} ಸೌಲಭ್ಯದ ಫೋಟೋಗಳನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಿ',
-        storedInPrefix: 'ಫೋಟೋಗಳನ್ನು ಇಲ್ಲಿ ಸಂಗ್ರಹಿಸಲಾಗುತ್ತದೆ:'
+        storedInPrefix: 'ಫೋಟೋಗಳನ್ನು ಇಲ್ಲಿ ಸಂಗ್ರಹಿಸಲಾಗುತ್ತದೆ:',
+        recentPhotos: 'ಇತ್ತೀಚಿನ ಫೋಟೋಗಳು',
+        noneForType: 'ಈ ಸೌಲಭ್ಯಕ್ಕೆ ಇನ್ನೂ ಯಾವುದೇ ಫೋಟೋಗಳಿಲ್ಲ.',
+        successUpload: '{count} {label} ಫೋಟೋಗಳನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಅಪ್‌ಲೋಡ್ ಮಾಡಲಾಗಿದೆ.',
+        failedUpload: 'ಸೌಲಭ್ಯ ಫೋಟೋಗಳನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ದೋಷ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.'
       }
     },
     dashboard: {
@@ -533,7 +552,10 @@ export const translations = {
       searchPlaceholder: 'ಶಾಲೆಗಳನ್ನು ಹುಡುಕಿ...',
       allLevels: 'ಎಲ್ಲಾ ಮಟ್ಟಗಳು',
       lastPrefix: 'ಕೊನೆಯದು:',
+      lastInspection: 'ಕೊನೆಯ ಪರಿಶೀಲನೆ',
       inspect: 'ಪರಿಶೀಲಿಸಿ',
+      newInspection: 'ಹೊಸ ಪರಿಶೀಲನೆಯನ್ನು ಪ್ರಾರಂಭಿಸಿ',
+      rating: 'ರೇಟಿಂಗ್ {rating}',
       noneFound: 'ಯಾವುದೇ ಶಾಲೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ',
     },
     admin: {
@@ -642,6 +664,8 @@ export const translations = {
       info: 'ಮಾಹಿತಿ',
       cancel: 'ರದ್ದುಮಾಡಿ',
       students: 'ವಿದ್ಯಾರ್ಥಿಗಳು',
+      viewAll: 'ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ',
+      notAvailable: 'ಲಭ್ಯವಿಲ್ಲ',
     },
     inspection: {
       title: 'ಹೊಸ ಆಹಾರ ಸುರಕ್ಷತಾ ಪರಿಶೀಲನೆ',
@@ -671,6 +695,8 @@ export const translations = {
       recommendations: 'ಶಿಫಾರಸುಗಳು',
       inspectionPhotos: 'ಪರಿಶೀಲನೆ ಫೋಟೋಗಳು',
       uploadPhotos: 'ಪರಿಶೀಲನೆ ಫೋಟೋಗಳನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಿ',
+      takePhoto: 'ಫೋಟೋ ತೆಗೆ',
+      upload: 'ಅಪ್‌ಲೋಡ್',
       photosStoredIn: 'ಫೋಟೋಗಳನ್ನು ಇಲ್ಲಿ ಸಂಗ್ರಹಿಸಲಾಗುತ್ತದೆ',
       chooseFiles: 'ಫೈಲ್‌ಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ',
       uploading: 'ಅಪ್‌ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...',

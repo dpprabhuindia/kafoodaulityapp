@@ -25,13 +25,23 @@ export const I18nProvider = ({ children }) => {
   };
 
   const t = useMemo(() => {
-    return (key) => {
+    return (key, params = {}) => {
       const locale = translations[lang] || translations.en;
-      const val = get(locale, key);
-      if (val !== undefined) return val;
-      // fallback to English
-      const fallback = get(translations.en, key);
-      return fallback !== undefined ? fallback : key;
+      let val = get(locale, key);
+      if (val === undefined) {
+        // fallback to English
+        val = get(translations.en, key);
+      }
+      if (val === undefined) return key;
+      
+      // Support interpolation: replace {key} with params[key]
+      if (typeof val === 'string' && Object.keys(params).length > 0) {
+        return val.replace(/\{(\w+)\}/g, (match, paramKey) => {
+          return params[paramKey] !== undefined ? params[paramKey] : match;
+        });
+      }
+      
+      return val;
     };
   }, [lang]);
 

@@ -11,9 +11,33 @@ dotenv.config();
 // Import models
 const School = require('./src/models/School');
 const Inspection = require('./src/models/Inspection');
+const { isValidObjectId } = mongoose;
+
+const findSchoolByIdentifier = async (identifier) => {
+  if (!identifier) return null;
+
+  if (isValidObjectId(identifier)) {
+    const byObjectId = await School.findById(identifier);
+    if (byObjectId) return byObjectId;
+  }
+
+  const numericId = Number(identifier);
+  if (!Number.isNaN(numericId)) {
+    const byLegacyId = await School.findOne({ legacyId: numericId });
+    if (byLegacyId) return byLegacyId;
+  }
+
+  const byLicense = await School.findOne({ licenseNumber: identifier });
+  if (byLicense) return byLicense;
+
+  return null;
+};
 
 const app = express();
 const PORT = process.env.PORT || 5010;
+
+// Store SSE connections for real-time updates
+const sseConnections = new Map();
 
 // Middleware
 app.use(cors());
@@ -29,7 +53,7 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
+    cb(null, Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(file.originalname));
   }
 });
 
@@ -62,6 +86,58 @@ const connectDB = async () => {
 // Connect to database
 connectDB();
 
+// Helper function to broadcast photo updates to all connected clients
+const broadcastPhotoUpdate = (schoolId, eventType, photoData) => {
+  const message = {
+    type: eventType, // 'photo_added', 'photo_deleted', 'photos_refreshed'
+    schoolId,
+    timestamp: new Date().toISOString(),
+    data: photoData
+  };
+
+  sseConnections.forEach((res, clientId) => {
+    try {
+      res.write(`data: ${JSON.stringify(message)}\n\n`);
+    } catch (error) {
+      console.error(`Error sending SSE to client ${clientId}:`, error);
+      sseConnections.delete(clientId);
+    }
+  });
+};
+
+// SSE endpoint for real-time photo updates
+app.get('/api/photos/events', (req, res) => {
+  // Set SSE headers
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Cache-Control'
+  });
+
+  // Generate unique client ID
+  const clientId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+  
+  // Store connection
+  sseConnections.set(clientId, res);
+  
+  // Send initial connection message
+  res.write(`data: ${JSON.stringify({ type: 'connected', clientId, timestamp: new Date().toISOString() })}\n\n`);
+
+  // Handle client disconnect
+  req.on('close', () => {
+    sseConnections.delete(clientId);
+    console.log(`SSE client ${clientId} disconnected`);
+  });
+
+  req.on('error', () => {
+    sseConnections.delete(clientId);
+  });
+
+  console.log(`SSE client ${clientId} connected. Total connections: ${sseConnections.size}`);
+});
+
 // SCHOOL ROUTES
 
 // Get all schools
@@ -77,7 +153,7 @@ app.get('/api/schools', async (req, res) => {
 // Get single school
 app.get('/api/schools/:id', async (req, res) => {
   try {
-    const school = await School.findById(req.params.id);
+    const school = await findSchoolByIdentifier(req.params.id);
     if (!school) {
       return res.status(404).json({ message: 'School not found' });
     }
@@ -98,18 +174,152 @@ app.post('/api/schools', async (req, res) => {
   }
 });
 
-// Update school
-app.put('/api/schools/:id', async (req, res) => {
+// Helper to normalize file URL
+const buildFileUrl = (req, filePath) => {
+  const normalized = filePath.replace(/\\/g, '/');
+  const relative = normalized.startsWith('/') ? normalized : `/${normalized}`;
+  return `${req.protocol}://${req.get('host')}${relative}`;
+};
+
+// Upload facility photo for a school with database storage
+app.post('/api/schools/:id/facility-photos', upload.single('photo'), async (req, res) => {
   try {
-    const school = await School.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const school = await findSchoolByIdentifier(req.params.id);
     if (!school) {
       return res.status(404).json({ message: 'School not found' });
     }
-    res.json(school);
+
+    const fs = require('fs');
+    const fileData = fs.readFileSync(req.file.path);
+    const base64Data = fileData.toString('base64');
+
+    const facilityType = (req.body.facilityType || 'facility').toLowerCase();
+    const facilityLabel = facilityType.charAt(0).toUpperCase() + facilityType.slice(1);
+    const relativePath = `database/${req.params.id}/facility_${facilityType}/${req.file.filename}`;
+
+    const photoRecord = {
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      path: relativePath,
+      url: buildFileUrl(req, `uploads/${req.file.filename}`),
+      size: req.file.size,
+      caption: req.body.caption || `${facilityLabel} Facility - ${req.file.originalname}`,
+      facilityType,
+      inspector: req.body.inspector || 'Facility Manager',
+      photoType: 'facility',
+      data: base64Data,
+      mimeType: req.file.mimetype,
+      uploadDate: new Date()
+    };
+
+    school.photos = school.photos || [];
+    school.photos.push(photoRecord);
+    await school.save();
+
+    const savedPhoto = school.photos[school.photos.length - 1];
+
+    // Clean up uploaded file since we're storing in database
+    fs.unlinkSync(req.file.path);
+
+    const responsePhoto = {
+      id: savedPhoto._id,
+      url: `data:${savedPhoto.mimeType};base64,${savedPhoto.data}`,
+      caption: savedPhoto.caption,
+      date: savedPhoto.uploadDate,
+      inspector: savedPhoto.inspector,
+      facilityType: savedPhoto.facilityType,
+      photoType: savedPhoto.photoType,
+      size: savedPhoto.size,
+      path: savedPhoto.path,
+      source: 'facility'
+    };
+
+    // Broadcast photo update via SSE
+    broadcastPhotoUpdate(req.params.id, 'photo_added', responsePhoto);
+
+    res.status(201).json({
+      message: 'Facility photo uploaded successfully',
+      photo: responsePhoto
+    });
+  } catch (error) {
+    console.error('Error uploading facility photo:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get combined school photos (facility + inspection)
+app.get('/api/schools/:id/photos', async (req, res) => {
+  try {
+    const schoolId = req.params.id;
+    const schoolDoc = await findSchoolByIdentifier(schoolId);
+    if (!schoolDoc) {
+      return res.status(404).json({ message: 'School not found' });
+    }
+
+    const school = schoolDoc.toObject();
+
+    const inspections = await Inspection.find(
+      isValidObjectId(schoolId) ? { schoolId } : { schoolId: schoolDoc._id }
+    ).lean();
+    const facilityPhotos = (school.photos || []).map((photo) => ({
+      id: photo._id,
+      url: photo.data ? `data:${photo.mimeType};base64,${photo.data}` : (photo.url || buildFileUrl(req, photo.path || `uploads/${photo.filename}`)),
+      caption: photo.caption || photo.originalName || 'Facility Photo',
+      date: photo.uploadDate || new Date(),
+      inspector: photo.inspector || 'Facility Manager',
+      facilityType: photo.facilityType,
+      size: photo.size,
+      path: photo.path,
+      source: 'facility'
+    }));
+
+    const inspectionPhotos = inspections.flatMap((inspection) =>
+      (inspection.photos || []).map((photo) => {
+        const relativePath = photo.path || `uploads/${photo.filename}`;
+        return {
+          id: photo._id || `${inspection._id}-${photo.filename}`,
+          url: photo.data ? `data:${photo.mimeType};base64,${photo.data}` : (photo.url || buildFileUrl(req, relativePath)),
+          caption: photo.caption || (photo.originalName
+            ? `Inspection Photo - ${photo.originalName}`
+            : 'Inspection Photo'),
+          date: photo.uploadDate || inspection.inspectionDate,
+          inspector: photo.inspector || inspection.inspectorName || 'Inspector',
+          inspectionId: inspection._id,
+          size: photo.size,
+          path: relativePath,
+          source: 'inspection'
+        };
+      })
+    );
+
+    const combined = [...facilityPhotos, ...inspectionPhotos].sort((a, b) => {
+      const dateA = a.date ? new Date(a.date) : 0;
+      const dateB = b.date ? new Date(b.date) : 0;
+      return dateB - dateA;
+    });
+
+    res.json(combined);
+  } catch (error) {
+    console.error('Error fetching school photos:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update school
+app.put('/api/schools/:id', async (req, res) => {
+  try {
+    const school = await findSchoolByIdentifier(req.params.id);
+    if (!school) {
+      return res.status(404).json({ message: 'School not found' });
+    }
+
+    Object.assign(school, req.body);
+    const updated = await school.save();
+    res.json(updated);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -118,10 +328,11 @@ app.put('/api/schools/:id', async (req, res) => {
 // Delete school
 app.delete('/api/schools/:id', async (req, res) => {
   try {
-    const school = await School.findByIdAndDelete(req.params.id);
+    const school = await findSchoolByIdentifier(req.params.id);
     if (!school) {
       return res.status(404).json({ message: 'School not found' });
     }
+    await school.deleteOne();
     res.json({ message: 'School deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -216,18 +427,30 @@ app.delete('/api/inspections/:id', async (req, res) => {
   }
 });
 
-// Upload inspection photo
+// Upload inspection photo with database storage
 app.post('/api/inspections/upload-photo', upload.single('photo'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
+    const fs = require('fs');
+    const fileData = fs.readFileSync(req.file.path);
+    const base64Data = fileData.toString('base64');
+
+    const relativePath = `uploads/${req.file.filename}`;
     const photoData = {
       filename: req.file.filename,
       originalName: req.file.originalname,
-      path: req.file.path,
-      size: req.file.size
+      path: relativePath,
+      url: buildFileUrl(req, relativePath),
+      size: req.file.size,
+      caption: req.body.caption || `Inspection Photo - ${req.file.originalname}`,
+      inspector: req.body.inspector || 'Inspector',
+      photoType: 'inspection',
+      data: base64Data,
+      mimeType: req.file.mimetype,
+      uploadDate: new Date()
     };
 
     if (req.body.inspectionId) {
@@ -238,11 +461,235 @@ app.post('/api/inspections/upload-photo', upload.single('photo'), async (req, re
       );
     }
 
+    // Clean up uploaded file since we're storing in database
+    fs.unlinkSync(req.file.path);
+
     res.json({
       message: 'Photo uploaded successfully',
-      photo: photoData
+      photo: {
+        id: photoData._id,
+        filename: photoData.filename,
+        originalName: photoData.originalName,
+        size: photoData.size,
+        caption: photoData.caption,
+        inspector: photoData.inspector,
+        uploadDate: photoData.uploadDate,
+        url: `data:${photoData.mimeType};base64,${photoData.data}`
+      }
     });
   } catch (error) {
+    console.error('Error uploading inspection photo:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// PHOTO MANAGEMENT ROUTES
+
+// Upload photo with base64 data (for mobile/web uploads)
+app.post('/api/photos/upload', async (req, res) => {
+  try {
+    const { 
+      schoolId, 
+      inspectionId, 
+      photoData, 
+      filename, 
+      originalName, 
+      size, 
+      mimeType, 
+      photoType = 'inspection',
+      facilityType,
+      caption,
+      inspector 
+    } = req.body;
+
+    if (!schoolId || !photoData || !filename) {
+      return res.status(400).json({ message: 'Missing required fields: schoolId, photoData, filename' });
+    }
+
+    // Validate base64 data
+    if (!photoData.startsWith('data:')) {
+      return res.status(400).json({ message: 'Invalid photo data format' });
+    }
+
+    // Extract base64 data without data URL prefix
+    const base64Data = photoData.split(',')[1];
+    const detectedMimeType = photoData.split(';')[0].split(':')[1];
+
+    const photoRecord = {
+      filename,
+      originalName: originalName || filename,
+      path: `database/${schoolId}/${photoType}_${inspectionId || 'general'}/${filename}`,
+      size: size || 0,
+      caption: caption || `${photoType.charAt(0).toUpperCase() + photoType.slice(1)} Photo - ${originalName || filename}`,
+      inspector: inspector || (photoType === 'facility' ? 'Facility Manager' : 'Inspector'),
+      photoType,
+      facilityType,
+      data: base64Data,
+      mimeType: mimeType || detectedMimeType,
+      uploadDate: new Date()
+    };
+
+    if (photoType === 'inspection' && inspectionId) {
+      // Add to inspection
+      const inspection = await Inspection.findById(inspectionId);
+      if (!inspection) {
+        return res.status(404).json({ message: 'Inspection not found' });
+      }
+      
+      inspection.photos.push(photoRecord);
+      await inspection.save();
+      
+      const savedPhoto = inspection.photos[inspection.photos.length - 1];
+      
+      const responsePhoto = {
+        id: savedPhoto._id,
+        filename: savedPhoto.filename,
+        originalName: savedPhoto.originalName,
+        size: savedPhoto.size,
+        caption: savedPhoto.caption,
+        inspector: savedPhoto.inspector,
+        photoType: savedPhoto.photoType,
+        uploadDate: savedPhoto.uploadDate,
+        url: `data:${savedPhoto.mimeType};base64,${savedPhoto.data}`
+      };
+
+      // Broadcast photo update via SSE
+      broadcastPhotoUpdate(schoolId, 'photo_added', responsePhoto);
+
+      res.status(201).json({
+        message: 'Inspection photo uploaded successfully',
+        photo: responsePhoto
+      });
+    } else {
+      // Add to school (facility or general photos)
+      const school = await findSchoolByIdentifier(schoolId);
+      if (!school) {
+        return res.status(404).json({ message: 'School not found' });
+      }
+      
+      school.photos = school.photos || [];
+      school.photos.push(photoRecord);
+      await school.save();
+      
+      const savedPhoto = school.photos[school.photos.length - 1];
+      
+      const responsePhoto = {
+        id: savedPhoto._id,
+        filename: savedPhoto.filename,
+        originalName: savedPhoto.originalName,
+        size: savedPhoto.size,
+        caption: savedPhoto.caption,
+        inspector: savedPhoto.inspector,
+        photoType: savedPhoto.photoType,
+        facilityType: savedPhoto.facilityType,
+        uploadDate: savedPhoto.uploadDate,
+        url: `data:${savedPhoto.mimeType};base64,${savedPhoto.data}`
+      };
+
+      // Broadcast photo update via SSE
+      broadcastPhotoUpdate(schoolId, 'photo_added', responsePhoto);
+
+      res.status(201).json({
+        message: 'Photo uploaded successfully',
+        photo: responsePhoto
+      });
+    }
+  } catch (error) {
+    console.error('Error uploading photo:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get all photos for a school from database
+app.get('/api/schools/:id/photos-db', async (req, res) => {
+  try {
+    const schoolId = req.params.id;
+    const schoolDoc = await findSchoolByIdentifier(schoolId);
+    if (!schoolDoc) {
+      return res.status(404).json({ message: 'School not found' });
+    }
+
+    // Get facility photos from school
+    const facilityPhotos = (schoolDoc.photos || []).map((photo) => ({
+      id: photo._id,
+      url: `data:${photo.mimeType};base64,${photo.data}`,
+      caption: photo.caption || photo.originalName || 'Facility Photo',
+      date: photo.uploadDate || new Date(),
+      inspector: photo.inspector || 'Facility Manager',
+      facilityType: photo.facilityType,
+      photoType: photo.photoType || 'facility',
+      size: photo.size,
+      path: photo.path,
+      source: 'facility'
+    }));
+
+    // Get inspection photos
+    const inspections = await Inspection.find(
+      isValidObjectId(schoolId) ? { schoolId } : { schoolId: schoolDoc._id }
+    ).lean();
+    
+    const inspectionPhotos = inspections.flatMap((inspection) =>
+      (inspection.photos || []).map((photo) => ({
+        id: photo._id || `${inspection._id}-${photo.filename}`,
+        url: `data:${photo.mimeType};base64,${photo.data}`,
+        caption: photo.caption || (photo.originalName
+          ? `Inspection Photo - ${photo.originalName}`
+          : 'Inspection Photo'),
+        date: photo.uploadDate || inspection.inspectionDate,
+        inspector: photo.inspector || inspection.inspectorName || 'Inspector',
+        inspectionId: inspection._id,
+        photoType: photo.photoType || 'inspection',
+        size: photo.size,
+        path: photo.path,
+        source: 'inspection'
+      }))
+    );
+
+    const combined = [...facilityPhotos, ...inspectionPhotos].sort((a, b) => {
+      const dateA = a.date ? new Date(a.date) : 0;
+      const dateB = b.date ? new Date(b.date) : 0;
+      return dateB - dateA;
+    });
+
+    res.json(combined);
+  } catch (error) {
+    console.error('Error fetching school photos from database:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Delete photo from database
+app.delete('/api/photos/:photoId', async (req, res) => {
+  try {
+    const { photoId } = req.params;
+    const { schoolId, inspectionId, photoType } = req.query;
+
+    if (photoType === 'inspection' && inspectionId) {
+      // Remove from inspection
+      const inspection = await Inspection.findById(inspectionId);
+      if (!inspection) {
+        return res.status(404).json({ message: 'Inspection not found' });
+      }
+      
+      inspection.photos = inspection.photos.filter(photo => photo._id.toString() !== photoId);
+      await inspection.save();
+    } else {
+      // Remove from school
+      const school = await findSchoolByIdentifier(schoolId);
+      if (!school) {
+        return res.status(404).json({ message: 'School not found' });
+      }
+      
+      school.photos = school.photos.filter(photo => photo._id.toString() !== photoId);
+      await school.save();
+    }
+
+    // Broadcast photo deletion via SSE
+    broadcastPhotoUpdate(schoolId, 'photo_deleted', { photoId, schoolId, inspectionId, photoType });
+
+    res.json({ message: 'Photo deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting photo:', error);
     res.status(500).json({ message: error.message });
   }
 });
