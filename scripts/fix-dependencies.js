@@ -43,14 +43,20 @@ if (fs.existsSync(nestedNodeModules)) {
 
     [nestedSchemaUtils, nestedAjv, nestedAjvKeywords, nestedAjvFormats].forEach((dir) => {
       if (fs.existsSync(dir)) {
-        removeDir(dir);
-        console.log(`Removed nested ${path.basename(dir)}`);
+        try {
+          removeDir(dir);
+          console.log(`Removed nested ${path.basename(dir)}`);
+        } catch (err) {
+          console.warn(`Warning: Could not remove ${path.basename(dir)}:`, err.message);
+        }
       }
     });
   } catch (error) {
     console.warn('Warning: Could not remove nested dependencies:', error.message);
     // Non-fatal, continue
   }
+} else {
+  console.log('No nested node_modules found in fork-ts-checker-webpack-plugin');
 }
 
 console.log('Dependency fix completed');

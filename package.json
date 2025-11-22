@@ -41,7 +41,9 @@
     "server": "node server.js",
     "start:prod": "NODE_ENV=production node server.js",
     "dev": "concurrently \"npm run server\" \"npm start\"",
-    "postinstall": "node scripts/fix-dependencies.js"
+    "postinstall": "node scripts/fix-dependencies.js",
+    "install:clean": "rm -rf node_modules package-lock.json && npm cache clean --force && npm install --legacy-peer-deps",
+    "build:render": "npm run install:clean && npm run postinstall && npm run build"
   },
   "eslintConfig": {
     "extends": [
