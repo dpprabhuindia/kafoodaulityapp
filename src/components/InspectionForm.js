@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { 
   Plus, 
   MapPin, 
@@ -16,6 +16,7 @@ import {
 import { uploadPhoto, deletePhoto, ensureDirectoryExists } from '../utils/unifiedPhotoStorage';
 import { useI18n } from '../i18n/I18nProvider';
 import { detectDevice } from '../utils/deviceDetection';
+import SchoolWardenPhotoFeed from './SchoolWardenPhotoFeed';
 
 const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true }) => {
   const { t } = useI18n();
@@ -54,6 +55,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
   const existingSchools = [
     {
       id: 1,
+      licenseNumber: 'KA-BLR-0001',
       name: 'Government High School Bangalore North',
       location: 'Bangalore North, Karnataka',
       phone: '+91 80 2234 5678',
@@ -64,6 +66,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
     },
     {
       id: 2,
+      licenseNumber: 'KA-MYS-0002',
       name: 'Government Primary School Mysore',
       location: 'Mysore, Karnataka',
       phone: '+91 821 2345 678',
@@ -74,6 +77,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
     },
     {
       id: 3,
+      licenseNumber: 'KA-HBL-0003',
       name: 'Government Higher Secondary School Hubli',
       location: 'Hubli, Karnataka',
       phone: '+91 836 2456 789',
@@ -84,6 +88,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
     },
     {
       id: 4,
+      licenseNumber: 'KA-MNG-0004',
       name: 'Government Primary School Mangalore',
       location: 'Mangalore, Karnataka',
       phone: '+91 824 2567 890',
@@ -94,8 +99,8 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
     }
   ];
 
-  const handleSchoolSelect = (schoolId) => {
-    setSelectedSchool(schoolId);
+  const handleSchoolSelect = (schoolIdentifier) => {
+    setSelectedSchool(schoolIdentifier);
     setShowAddSchool(false);
   };
 
@@ -266,7 +271,20 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
     onClose();
   };
 
-  const selectedSchoolData = existingSchools.find(school => school.id === selectedSchool);
+  const selectedSchoolData = existingSchools.find(
+    school =>
+      school.licenseNumber === selectedSchool ||
+      school.id === selectedSchool ||
+      String(school.id) === String(selectedSchool)
+  );
+  const selectedSchoolIdentifier = useMemo(() => {
+    if (selectedSchoolData?.licenseNumber) return selectedSchoolData.licenseNumber;
+    if (selectedSchoolData?._id) return selectedSchoolData._id;
+    if (selectedSchoolData?.name) return selectedSchoolData.name;
+    if (selectedSchool) return String(selectedSchool);
+    if (preSelectedSchoolId) return String(preSelectedSchoolId);
+    return '';
+  }, [selectedSchoolData, selectedSchool, preSelectedSchoolId]);
 
   const containerClasses = isModal 
     ? "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4"
@@ -311,13 +329,13 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     <div className="relative">
                       <select
                         value={selectedSchool || ''}
-                        onChange={(e) => handleSchoolSelect(parseInt(e.target.value))}
+                        onChange={(e) => handleSchoolSelect(e.target.value)}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 cursor-pointer text-base"
                       >
                         <option value="">{t('inspection.selectSchoolPlaceholder')}</option>
                         {existingSchools.map((school) => (
-                          <option key={school.id} value={school.id}>
-                            {school.name} - {school.location}
+                          <option key={school.id} value={school.licenseNumber}>
+                            {school.name} ({school.licenseNumber})
                           </option>
                         ))}
                       </select>
@@ -358,6 +376,12 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     </div>
                   </div>
                 )}
+                <div className="mt-4">
+                  <SchoolWardenPhotoFeed
+                    schoolId={selectedSchoolIdentifier}
+                    schoolName={selectedSchoolData?.name}
+                  />
+                </div>
               </div>
             ) : (
               /* Add New School Form */

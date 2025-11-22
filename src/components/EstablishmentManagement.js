@@ -27,6 +27,20 @@ import { useI18n } from "../i18n/I18nProvider";
 import { uploadPhoto, debugPhotoStorage } from "../utils/unifiedPhotoStorage";
 import { useSSEGlobal } from "../hooks/useSSE";
 
+const resolveApiBaseUrl = () => {
+  const envValue = process.env.REACT_APP_API_URL;
+  if (envValue && envValue !== "undefined" && envValue !== "null") {
+    return envValue;
+  }
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return window.location.origin;
+  }
+  return "";
+};
+
+const getNormalizedApiBaseUrl = () =>
+  resolveApiBaseUrl().replace(/\/api\/?$/, "");
+
 const EstablishmentManagement = () => {
   const { t } = useI18n();
   const { isConnected, lastUpdate } = useSSEGlobal();
@@ -194,10 +208,7 @@ const EstablishmentManagement = () => {
       console.log(`[Desktop] Loading photos for school ${schoolId}...`);
 
       // Use the same endpoint as mobile for consistency
-      const API_BASE_URL =
-        process.env.REACT_APP_API_URL || "http://localhost:5010";
-      // Remove trailing /api if it exists to avoid double /api/api
-      const baseUrl = API_BASE_URL.replace(/\/api\/?$/, "");
+      const baseUrl = getNormalizedApiBaseUrl();
       const response = await fetch(`${baseUrl}/api/schools/${schoolId}/photos`);
 
       if (!response.ok) {

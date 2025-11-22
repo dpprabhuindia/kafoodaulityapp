@@ -11,6 +11,8 @@ dotenv.config();
 // Import models
 const School = require('./src/models/School');
 const Inspection = require('./src/models/Inspection');
+const WardenPhoto = require('./src/models/WardenPhoto');
+const User = require('./src/models/User');
 const { isValidObjectId } = mongoose;
 
 const findSchoolByIdentifier = async (identifier) => {
@@ -33,6 +35,37 @@ const findSchoolByIdentifier = async (identifier) => {
   return null;
 };
 
+const normalizeBaseUrl = (url = '') => url.replace(/\/+$/, '');
+
+const resolveConfiguredBaseUrl = () => {
+  const explicitBase =
+    process.env.PUBLIC_BASE_URL ||
+    process.env.APP_BASE_URL ||
+    process.env.REACT_APP_API_URL ||
+    process.env.API_BASE_URL;
+
+  if (explicitBase && explicitBase !== 'undefined' && explicitBase !== 'null') {
+    return normalizeBaseUrl(explicitBase.replace(/\/api\/?$/, ''));
+  }
+
+  return '';
+};
+
+const getRequestBaseUrl = (req) => {
+  if (!req) return '';
+  const protocol = req.protocol || 'http';
+  const host = req.get ? req.get('host') : '';
+  return host ? `${protocol}://${host}` : '';
+};
+
+const getAbsoluteBaseUrl = (req) => {
+  const configured = resolveConfiguredBaseUrl();
+  if (configured) {
+    return configured;
+  }
+  return normalizeBaseUrl(getRequestBaseUrl(req));
+};
+
 const app = express();
 const PORT = process.env.PORT || 5010;
 
@@ -41,17 +74,11 @@ const sseConnections = new Map();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Serve uploaded files
 app.use('/uploads', express.static('uploads'));
-
-// Serve static files from React build (for production)
-if (process.env.NODE_ENV === 'production') {
-  const path = require('path');
-  app.use(express.static(path.join(__dirname, 'build')));
-}
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -80,7 +107,7 @@ const upload = multer({
 // Database connection
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/food-transparency-portal';
+    const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/food-transparency-portal';
     await mongoose.connect(mongoURI);
     console.log('MongoDB Connected');
   } catch (error) {
@@ -489,6 +516,451 @@ app.post('/api/inspections/upload-photo', upload.single('photo'), async (req, re
   }
 });
 
+// WARDEN PHOTO ROUTES
+
+// Get all warden photos
+app.get('/api/warden-photos', async (req, res) => {
+  try {
+    const { schoolId, mealType, status, startDate, endDate, page = 1, limit = 20 } = req.query;
+    
+    let filter = {};
+    if (schoolId) {
+      // Enhanced school filtering - match by exact schoolId, licenseNumber, or school name
+      const searchCriteria = [
+        { licenseNumber: schoolId },
+        { name: { $regex: schoolId, $options: 'i' } }
+      ];
+      
+      // Only add _id search if schoolId is a valid ObjectId
+      if (mongoose.Types.ObjectId.isValid(schoolId)) {
+        searchCriteria.push({ _id: schoolId });
+      }
+      
+      const schools = await School.find({
+        $or: searchCriteria
+      });
+      
+      if (schools.length > 0) {
+        // Create filter that matches any of the school identifiers
+        const schoolIdentifiers = schools.flatMap(school => [
+          school._id.toString(),
+          school.licenseNumber,
+          school.name,
+          `${school.name} (${school.licenseNumber})`,
+          `${school.name} ()` // Handle empty parentheses format from old data
+        ]).filter(Boolean);
+        
+        console.log('School filter - Found schools:', schools.length, 'Identifiers:', schoolIdentifiers);
+        filter.schoolId = { $in: schoolIdentifiers };
+      } else {
+        console.log('School filter - No schools found for:', schoolId, 'Using direct match');
+        // If no schools found, use direct match (fallback)
+        filter.schoolId = schoolId;
+      }
+    }
+    if (mealType) filter.mealType = mealType;
+    if (status) filter.status = status;
+    
+    if (startDate || endDate) {
+      filter.timestamp = {};
+      if (startDate) filter.timestamp.$gte = new Date(startDate);
+      if (endDate) filter.timestamp.$lte = new Date(endDate);
+    }
+    
+    const skip = (page - 1) * limit;
+    
+    const photos = await WardenPhoto.find(filter)
+      .populate('uploadedBy', 'name phone role')
+      .populate('reviewedBy', 'name role')
+      .sort({ timestamp: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean(); // Use lean() for better performance and smaller response size
+    
+    const total = await WardenPhoto.countDocuments(filter);
+    
+    res.json({
+      photos,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching warden photos:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get warden photos for a specific school
+app.get('/api/schools/:schoolId/warden-photos', async (req, res) => {
+  try {
+    const { schoolId } = req.params;
+    const { mealType, status, startDate, endDate } = req.query;
+    
+    let filter = { schoolId };
+    if (mealType) filter.mealType = mealType;
+    if (status) filter.status = status;
+    
+    if (startDate || endDate) {
+      filter.timestamp = {};
+      if (startDate) filter.timestamp.$gte = new Date(startDate);
+      if (endDate) filter.timestamp.$lte = new Date(endDate);
+    }
+    
+    const photos = await WardenPhoto.find(filter)
+      .populate('uploadedBy', 'name phone role')
+      .populate('reviewedBy', 'name role')
+      .sort({ timestamp: -1 });
+    
+    res.json(photos);
+  } catch (error) {
+    console.error('Error fetching school warden photos:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Create warden photo (from warden app)
+app.post('/api/warden-photos', async (req, res) => {
+  try {
+    console.log('Received warden photo sync request:', req.body);
+    const { schoolId, mealType, photoUrl, uploadedBy, filename, originalName, size, mimeType, data } = req.body;
+    
+    if (!schoolId || !mealType || !photoUrl || !uploadedBy) {
+      console.error('Missing required fields:', { schoolId, mealType, photoUrl, uploadedBy });
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+    
+    const wardenPhoto = new WardenPhoto({
+      schoolId,
+      mealType,
+      photoUrl,
+      uploadedBy,
+      filename,
+      originalName,
+      size,
+      mimeType,
+      data,
+      status: 'pending'
+    });
+    
+    const savedPhoto = await wardenPhoto.save();
+    await savedPhoto.populate('uploadedBy', 'name phone role');
+    
+    // Broadcast photo update via SSE
+    broadcastPhotoUpdate(schoolId, 'warden_photo_added', {
+      id: savedPhoto._id,
+      schoolId: savedPhoto.schoolId,
+      mealType: savedPhoto.mealType,
+      photoUrl: savedPhoto.photoUrl,
+      timestamp: savedPhoto.timestamp,
+      uploadedBy: savedPhoto.uploadedBy,
+      status: savedPhoto.status
+    });
+    
+    res.status(201).json({
+      success: true,
+      photo: savedPhoto
+    });
+  } catch (error) {
+    console.error('Error creating warden photo:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Warden photo upload endpoint (handles FormData from PWA)
+app.post('/api/warden-photos/upload', upload.single('photo'), async (req, res) => {
+  try {
+    console.log('Received warden photo upload:', req.body);
+    console.log('File:', req.file);
+    
+    if (!req.file) {
+      return res.status(400).json({ message: 'No photo file uploaded' });
+    }
+    
+    const { schoolId, mealType } = req.body;
+    
+    if (!schoolId || !mealType) {
+      return res.status(400).json({ message: 'Missing required fields: schoolId, mealType' });
+    }
+    
+    // Build absolute photo URL based on configured base or incoming request
+    const photoUrl = `${getAbsoluteBaseUrl(req)}/uploads/${req.file.filename}`;
+    
+    // Create warden photo record
+    const wardenPhoto = new WardenPhoto({
+      schoolId,
+      mealType,
+      photoUrl,
+      uploadedBy: req.body.uploadedBy || 'anonymous', // Will be set by auth middleware in production
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      size: req.file.size,
+      mimeType: req.file.mimetype,
+      status: 'pending'
+    });
+    
+    const savedPhoto = await wardenPhoto.save();
+    
+    // Broadcast photo update via SSE
+    broadcastPhotoUpdate(schoolId, 'warden_photo_added', {
+      id: savedPhoto._id,
+      schoolId: savedPhoto.schoolId,
+      mealType: savedPhoto.mealType,
+      photoUrl: savedPhoto.photoUrl,
+      timestamp: savedPhoto.timestamp,
+      uploadedBy: savedPhoto.uploadedBy,
+      status: savedPhoto.status
+    });
+    
+    res.status(201).json({
+      success: true,
+      photo: savedPhoto
+    });
+  } catch (error) {
+    console.error('Error uploading warden photo:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update warden photo status (approve/reject)
+app.put('/api/warden-photos/:photoId/status', async (req, res) => {
+  try {
+    const { photoId } = req.params;
+    const { status, reviewNotes, reviewedBy } = req.body;
+    
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status. Must be approved or rejected' });
+    }
+    
+    const photo = await WardenPhoto.findByIdAndUpdate(
+      photoId,
+      {
+        status,
+        reviewNotes,
+        reviewedBy,
+        reviewedAt: new Date()
+      },
+      { new: true }
+    ).populate('uploadedBy', 'name phone role').populate('reviewedBy', 'name role');
+    
+    if (!photo) {
+      return res.status(404).json({ message: 'Photo not found' });
+    }
+    
+    // Broadcast photo status update via SSE
+    broadcastPhotoUpdate(photo.schoolId, 'warden_photo_status_updated', {
+      id: photo._id,
+      status: photo.status,
+      reviewNotes: photo.reviewNotes,
+      reviewedBy: photo.reviewedBy,
+      reviewedAt: photo.reviewedAt
+    });
+    
+    res.json(photo);
+  } catch (error) {
+    console.error('Error updating warden photo status:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Delete warden photo
+app.delete('/api/warden-photos/:photoId', async (req, res) => {
+  try {
+    const { photoId } = req.params;
+    
+    const photo = await WardenPhoto.findByIdAndDelete(photoId);
+    if (!photo) {
+      return res.status(404).json({ message: 'Photo not found' });
+    }
+    
+    // Broadcast photo deletion via SSE
+    broadcastPhotoUpdate(photo.schoolId, 'warden_photo_deleted', {
+      id: photo._id,
+      schoolId: photo.schoolId
+    });
+    
+    res.json({ message: 'Photo deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting warden photo:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Bulk update warden photo school IDs (migration endpoint)
+app.post('/api/warden-photos/fix-school-ids', async (req, res) => {
+  try {
+    console.log('Starting warden photo school ID migration...');
+    
+    // Get all schools to create mapping
+    const schools = await School.find();
+    const schoolMapping = new Map();
+    
+    schools.forEach(school => {
+      // Map various formats to license number
+      schoolMapping.set(school.name, school.licenseNumber);
+      schoolMapping.set(`${school.name} ()`, school.licenseNumber);
+      schoolMapping.set(school._id.toString(), school.licenseNumber);
+      schoolMapping.set(school.licenseNumber, school.licenseNumber);
+    });
+    
+    // Get all warden photos
+    const photos = await WardenPhoto.find();
+    let updatedCount = 0;
+    const updateSummary = [];
+    
+    for (const photo of photos) {
+      const currentSchoolId = photo.schoolId;
+      const correctSchoolId = schoolMapping.get(currentSchoolId);
+      
+      if (correctSchoolId && correctSchoolId !== currentSchoolId) {
+        photo.schoolId = correctSchoolId;
+        await photo.save();
+        updatedCount++;
+        
+        // Track summary
+        const existing = updateSummary.find(s => s.from === currentSchoolId);
+        if (existing) {
+          existing.count++;
+        } else {
+          updateSummary.push({
+            from: currentSchoolId,
+            to: correctSchoolId,
+            count: 1
+          });
+        }
+      }
+    }
+    
+    console.log(`Migration completed. Updated ${updatedCount} photos.`);
+    
+    res.json({
+      success: true,
+      message: `Successfully updated ${updatedCount} warden photos`,
+      updatedCount,
+      summary: updateSummary
+    });
+  } catch (error) {
+    console.error('Error fixing warden photo school IDs:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get warden photo statistics
+app.get('/api/warden-photos/stats', async (req, res) => {
+  try {
+    const { schoolId, startDate, endDate } = req.query;
+    
+    let matchFilter = {};
+    if (schoolId) {
+      // Enhanced school filtering - match by exact schoolId, licenseNumber, or school name
+      const searchCriteria = [
+        { licenseNumber: schoolId },
+        { name: { $regex: schoolId, $options: 'i' } }
+      ];
+      
+      // Only add _id search if schoolId is a valid ObjectId
+      if (mongoose.Types.ObjectId.isValid(schoolId)) {
+        searchCriteria.push({ _id: schoolId });
+      }
+      
+      const schools = await School.find({
+        $or: searchCriteria
+      });
+      
+      if (schools.length > 0) {
+        // Create filter that matches any of the school identifiers
+        const schoolIdentifiers = schools.flatMap(school => [
+          school._id.toString(),
+          school.licenseNumber,
+          school.name,
+          `${school.name} (${school.licenseNumber})`,
+          `${school.name} ()` // Handle empty parentheses format from old data
+        ]).filter(Boolean);
+        
+        matchFilter.schoolId = { $in: schoolIdentifiers };
+      } else {
+        // If no schools found, use direct match (fallback)
+        matchFilter.schoolId = schoolId;
+      }
+    }
+    if (startDate || endDate) {
+      matchFilter.timestamp = {};
+      if (startDate) matchFilter.timestamp.$gte = new Date(startDate);
+      if (endDate) matchFilter.timestamp.$lte = new Date(endDate);
+    }
+    
+    const stats = await WardenPhoto.aggregate([
+      { $match: matchFilter },
+      {
+        $group: {
+          _id: null,
+          totalPhotos: { $sum: 1 },
+          pendingPhotos: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+          approvedPhotos: { $sum: { $cond: [{ $eq: ['$status', 'approved'] }, 1, 0] } },
+          rejectedPhotos: { $sum: { $cond: [{ $eq: ['$status', 'rejected'] }, 1, 0] } },
+          breakfastPhotos: { $sum: { $cond: [{ $eq: ['$mealType', 'breakfast'] }, 1, 0] } },
+          lunchPhotos: { $sum: { $cond: [{ $eq: ['$mealType', 'lunch'] }, 1, 0] } },
+          snacksPhotos: { $sum: { $cond: [{ $eq: ['$mealType', 'snacks'] }, 1, 0] } },
+          dinnerPhotos: { $sum: { $cond: [{ $eq: ['$mealType', 'dinner'] }, 1, 0] } }
+        }
+      }
+    ]);
+    
+    const mealTypeStats = await WardenPhoto.aggregate([
+      { $match: matchFilter },
+      {
+        $group: {
+          _id: '$mealType',
+          count: { $sum: 1 },
+          pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+          approved: { $sum: { $cond: [{ $eq: ['$status', 'approved'] }, 1, 0] } },
+          rejected: { $sum: { $cond: [{ $eq: ['$status', 'rejected'] }, 1, 0] } }
+        }
+      }
+    ]);
+    
+    const dailyStats = await WardenPhoto.aggregate([
+      { $match: matchFilter },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$timestamp' },
+            month: { $month: '$timestamp' },
+            day: { $dayOfMonth: '$timestamp' }
+          },
+          count: { $sum: 1 },
+          pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+          approved: { $sum: { $cond: [{ $eq: ['$status', 'approved'] }, 1, 0] } },
+          rejected: { $sum: { $cond: [{ $eq: ['$status', 'rejected'] }, 1, 0] } }
+        }
+      },
+      { $sort: { '_id.year': -1, '_id.month': -1, '_id.day': -1 } },
+      { $limit: 30 }
+    ]);
+    
+    res.json({
+      overall: stats[0] || {
+        totalPhotos: 0,
+        pendingPhotos: 0,
+        approvedPhotos: 0,
+        rejectedPhotos: 0,
+        breakfastPhotos: 0,
+        lunchPhotos: 0,
+        snacksPhotos: 0,
+        dinnerPhotos: 0
+      },
+      byMealType: mealTypeStats,
+      daily: dailyStats
+    });
+  } catch (error) {
+    console.error('Error fetching warden photo stats:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // PHOTO MANAGEMENT ROUTES
 
 // Upload photo with base64 data (for mobile/web uploads)
@@ -822,20 +1294,82 @@ app.use((error, req, res, next) => {
   res.status(500).json({ message: error.message });
 });
 
-// Serve React app for all non-API routes (for production)
-if (process.env.NODE_ENV === 'production') {
-  const path = require('path');
-  app.get('*', (req, res) => {
-    // Don't serve React app for API routes
-    if (req.path.startsWith('/api/')) {
-      return res.status(404).json({ message: 'API endpoint not found' });
+// USER SYNC ENDPOINT
+// Sync user from backend to web portal
+app.post('/api/users/sync', async (req, res) => {
+  try {
+    console.log('Received user sync request:', req.body);
+    const { name, phone, role, schoolId } = req.body;
+    
+    if (!phone) {
+      return res.status(400).json({ message: 'Phone number is required' });
     }
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
-  });
-}
+
+    // Check if user already exists by phone number (more reliable than ID)
+    let user = await User.findOne({ phone });
+    
+    if (user) {
+      // Update existing user
+      user.name = name || user.name;
+      user.role = role || user.role;
+      user.schoolId = schoolId || user.schoolId;
+      await user.save();
+      console.log('User updated:', user._id);
+    } else {
+      // Create new user - let MongoDB generate the ObjectId
+      user = new User({
+        name: name || 'Warden',
+        phone: phone,
+        password: 'synced_user_temp_password', // Temporary password for synced users
+        role: role || 'warden',
+        schoolId: schoolId || '',
+        status: 'active',
+        permissions: role === 'warden' ? ['upload_photos'] : []
+      });
+      await user.save();
+      console.log('User created:', user._id);
+    }
+    
+    res.json({ success: true, user });
+  } catch (error) {
+    console.error('Error syncing user:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Serve React app static files
+app.use(express.static(path.join(__dirname, 'build')));
+
+// Handle specific React routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+app.get('/warden-photos', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+app.get('/establishments', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+app.get('/audit', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+app.get('/reports', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+app.get('/profile', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  const fallbackBaseUrl = `http://127.0.0.1:${PORT}`;
+  const baseUrl = resolveConfiguredBaseUrl() || fallbackBaseUrl;
+  console.log(`Web portal available at ${baseUrl}`);
 });
 

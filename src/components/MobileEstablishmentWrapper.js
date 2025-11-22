@@ -499,7 +499,7 @@ const MobileEditSchool = ({ school, onClose, onSave }) => {
           <h1 className="text-base font-semibold">
             {formData.id
               ? t("establishments.editTitle")
-              : t("establishments.buttons.addSchool") || "Add School"}
+              : t("establishments.actions.addSchool") || "Add School"}
           </h1>
           <button
             onClick={onClose}

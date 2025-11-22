@@ -168,7 +168,7 @@ const MobileSchoolsList = ({
             onClick={callAddSchool}
             className="flex-1 bg-blue-600 active:bg-blue-700 text-white py-3 rounded-xl font-semibold text-sm"
           >
-            {t("establishments.buttons.addSchool") || "Add School"}
+            {t("establishments.actions.addSchool") || "Add School"}
           </button>
         </div>
       </div>

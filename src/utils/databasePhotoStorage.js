@@ -2,8 +2,19 @@
 import { v4 as uuidv4 } from 'uuid';
 
 // Ensure API_BASE_URL doesn't have trailing /api
+const resolveBaseUrl = () => {
+  const envValue = process.env.REACT_APP_API_URL;
+  if (envValue && envValue !== 'undefined' && envValue !== 'null') {
+    return envValue;
+  }
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+  return '';
+};
+
 const getApiBaseUrl = () => {
-  const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5010';
+  const baseUrl = resolveBaseUrl();
   // Remove trailing /api if it exists to avoid double /api/api
   return baseUrl.replace(/\/api\/?$/, '');
 };

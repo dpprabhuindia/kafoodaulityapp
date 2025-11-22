@@ -7,22 +7,37 @@ class SSEService {
     this.maxReconnectAttempts = 5;
     this.reconnectDelay = 1000; // Start with 1 second
     this.isConnected = false;
+    this.isConnecting = false; // Add flag to prevent multiple connection attempts
   }
 
   connect() {
+    // Prevent multiple simultaneous connection attempts
+    if (this.isConnecting) {
+      console.log('📡 SSE connection already in progress, skipping...');
+      return;
+    }
+
     if (this.eventSource && this.eventSource.readyState !== EventSource.CLOSED) {
+      console.log('📡 SSE already connected or connecting, readyState:', this.eventSource.readyState);
       return; // Already connected or connecting
     }
 
-    const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5010';
+    this.isConnecting = true;
+
+    // Get base URL and ensure no trailing /api to avoid double /api/api
+    const rawBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5010';
+    const apiBaseUrl = rawBaseUrl.replace(/\/api\/?$/, '');
     const sseUrl = `${apiBaseUrl}/api/photos/events`;
+
+    console.log('📡 Attempting SSE connection to:', sseUrl);
 
     try {
       this.eventSource = new EventSource(sseUrl);
 
       this.eventSource.onopen = () => {
-        console.log('📡 SSE connection established');
+        console.log('📡 SSE connection established successfully');
         this.isConnected = true;
+        this.isConnecting = false;
         this.reconnectAttempts = 0;
         this.reconnectDelay = 1000;
       };
@@ -30,15 +45,20 @@ class SSEService {
       this.eventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
+          // Only log non-heartbeat messages to reduce console spam
+          if (data.type !== 'connected') {
+            console.log('📡 SSE message received:', data.type, data);
+          }
           this.handleMessage(data);
         } catch (error) {
-          console.error('Error parsing SSE message:', error);
+          console.error('Error parsing SSE message:', error, 'Raw data:', event.data);
         }
       };
 
       this.eventSource.onerror = (error) => {
-        console.error('SSE connection error:', error);
+        console.error('SSE connection error:', error, 'ReadyState:', this.eventSource?.readyState);
         this.isConnected = false;
+        this.isConnecting = false;
         
         if (this.eventSource.readyState === EventSource.CLOSED) {
           this.handleReconnect();
@@ -47,6 +67,7 @@ class SSEService {
 
     } catch (error) {
       console.error('Error creating SSE connection:', error);
+      this.isConnecting = false;
       this.handleReconnect();
     }
   }
@@ -56,16 +77,34 @@ class SSEService {
 
     switch (type) {
       case 'connected':
-        console.log('📡 SSE client connected:', data.clientId);
+        // Only log initial connection, not every heartbeat
+        if (!this.isConnected) {
+          console.log('📡 SSE client connected:', data.clientId);
+        }
         break;
       
       case 'photo_added':
-        console.log('📸 New photo added via SSE:', data.data);
+        console.log('📸 New photo added via SSE');
         this.notifyListeners('photo_added', schoolId, data.data);
         break;
       
+      case 'warden_photo_added':
+        console.log('📸 New warden photo added via SSE');
+        this.notifyListeners('warden_photo_added', schoolId, data.data);
+        break;
+      
+      case 'warden_photo_status_updated':
+        console.log('✅ Warden photo status updated via SSE');
+        this.notifyListeners('warden_photo_status_updated', schoolId, data.data);
+        break;
+      
+      case 'warden_photo_deleted':
+        console.log('🗑️ Warden photo deleted via SSE');
+        this.notifyListeners('warden_photo_deleted', schoolId, data.data);
+        break;
+      
       case 'photo_deleted':
-        console.log('🗑️ Photo deleted via SSE:', data.data);
+        console.log('🗑️ Photo deleted via SSE');
         this.notifyListeners('photo_deleted', schoolId, data.data);
         break;
       
@@ -75,7 +114,10 @@ class SSEService {
         break;
       
       default:
-        console.log('📡 SSE message:', data);
+        // Reduce logging for unknown message types
+        if (type !== 'heartbeat' && type !== 'ping') {
+          console.log('📡 Unknown SSE message type:', type);
+        }
     }
   }
 
@@ -121,7 +163,16 @@ class SSEService {
 
   // Subscribe to all photo updates (for admin/dashboard views)
   subscribeAll(callback) {
-    return this.subscribe('*', callback);
+    console.log('📡 Subscribing to all SSE events');
+    const unsubscribe = this.subscribe('*', callback);
+    
+    // Ensure connection is established
+    if (!this.isConnected && (!this.eventSource || this.eventSource.readyState === EventSource.CLOSED)) {
+      console.log('📡 SSE not connected, initiating connection...');
+      this.connect();
+    }
+    
+    return unsubscribe;
   }
 
   notifyListeners(eventType, schoolId, data) {
@@ -163,6 +214,7 @@ class SSEService {
   getConnectionStatus() {
     return {
       isConnected: this.isConnected,
+      isConnecting: this.isConnecting,
       readyState: this.eventSource?.readyState,
       reconnectAttempts: this.reconnectAttempts
     };

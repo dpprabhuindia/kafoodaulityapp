@@ -1,7 +1,18 @@
 // API service for handling HTTP requests to the backend
 // Ensure API_BASE_URL doesn't have trailing /api to avoid double /api/api
+const resolveBaseUrl = () => {
+  const envValue = process.env.REACT_APP_API_URL;
+  if (envValue && envValue !== 'undefined' && envValue !== 'null') {
+    return envValue;
+  }
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+  return '';
+};
+
 const getApiBaseUrl = () => {
-  const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5010';
+  const baseUrl = resolveBaseUrl();
   // Remove trailing /api if it exists
   return baseUrl.replace(/\/api\/?$/, '');
 };
@@ -148,6 +159,34 @@ class ApiService {
   async getReportData(filters = {}) {
     const queryParams = new URLSearchParams(filters).toString();
     return this.request(`/api/reports?${queryParams}`);
+  }
+
+  // Warden Photos API methods
+  async getWardenPhotos(filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    return this.request(`/api/warden-photos?${queryParams}`);
+  }
+
+  async getWardenPhotoStats(filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    return this.request(`/api/warden-photos/stats?${queryParams}`);
+  }
+
+  async updateWardenPhotoStatus(photoId, status, reviewNotes = '', reviewedBy = '') {
+    return this.request(`/api/warden-photos/${photoId}/status`, {
+      method: 'PUT',
+      body: {
+        status,
+        reviewNotes,
+        reviewedBy,
+      },
+    });
+  }
+
+  async deleteWardenPhoto(photoId) {
+    return this.request(`/api/warden-photos/${photoId}`, {
+      method: 'DELETE',
+    });
   }
 }
 
