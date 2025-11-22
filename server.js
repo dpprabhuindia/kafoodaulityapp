@@ -47,6 +47,12 @@ app.use(express.urlencoded({ extended: true }));
 // Serve uploaded files
 app.use('/uploads', express.static('uploads'));
 
+// Serve static files from React build (for production)
+if (process.env.NODE_ENV === 'production') {
+  const path = require('path');
+  app.use(express.static(path.join(__dirname, 'build')));
+}
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -815,6 +821,18 @@ app.use((error, req, res, next) => {
   }
   res.status(500).json({ message: error.message });
 });
+
+// Serve React app for all non-API routes (for production)
+if (process.env.NODE_ENV === 'production') {
+  const path = require('path');
+  app.get('*', (req, res) => {
+    // Don't serve React app for API routes
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ message: 'API endpoint not found' });
+    }
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  });
+}
 
 // Start server
 app.listen(PORT, () => {

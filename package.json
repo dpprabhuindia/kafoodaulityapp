@@ -39,7 +39,9 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "node server.js",
-    "dev": "concurrently \"npm run server\" \"npm start\""
+    "start:prod": "NODE_ENV=production node server.js",
+    "dev": "concurrently \"npm run server\" \"npm start\"",
+    "postinstall": "node scripts/fix-dependencies.js"
   },
   "eslintConfig": {
     "extends": [
@@ -60,23 +62,22 @@
   },
   "devDependencies": {
     "@types/react": "^18.0.15",
-    "@types/react-dom": "^18.0.6"
+    "@types/react-dom": "^18.0.6",
+    "schema-utils": "^4.2.0"
   },
   "overrides": {
     "ajv": "^8.12.0",
     "ajv-keywords": "^5.1.0",
     "ajv-formats": "^2.1.1",
+    "schema-utils": "^4.2.0",
     "fork-ts-checker-webpack-plugin": {
-      "ajv": "^8.12.0",
-      "ajv-keywords": "^5.1.0",
-      "ajv-formats": "^2.1.1"
-    },
-    "schema-utils": {
+      "schema-utils": "^4.2.0",
       "ajv": "^8.12.0",
       "ajv-keywords": "^5.1.0",
       "ajv-formats": "^2.1.1"
     },
     "terser-webpack-plugin": {
+      "schema-utils": "^4.2.0",
       "ajv": "^8.12.0",
       "ajv-keywords": "^5.1.0",
       "ajv-formats": "^2.1.1"
