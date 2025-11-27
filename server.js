@@ -119,6 +119,15 @@ const connectDB = async () => {
 // Connect to database
 connectDB();
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
 // Helper function to broadcast photo updates to all connected clients
 const broadcastPhotoUpdate = (schoolId, eventType, photoData) => {
   const message = {
