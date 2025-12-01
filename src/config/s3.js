@@ -114,4 +114,3 @@ module.exports = {
   generateS3Key,
   BUCKET_NAME,
 };
-

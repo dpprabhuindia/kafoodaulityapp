@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { AlertCircle, Image, RefreshCw, School, ChevronLeft, ChevronRight, X, Trash2 } from "lucide-react";
+import { AlertCircle, Image, RefreshCw, School, ChevronLeft, ChevronRight, X } from "lucide-react";
 import apiService from "../services/api";
-import { deletePhotoFromDatabase } from "../utils/databasePhotoStorage";
 
 const formatTime = (value) =>
   new Date(value).toLocaleString("en-IN", {
@@ -185,59 +184,6 @@ export default function SchoolWardenPhotoFeed({
     }
   };
 
-  const handleDeletePhoto = async (photo, index) => {
-    if (!photo) return;
-
-    const photoId = photo._id || photo.id;
-    if (!photoId) return;
-
-    const schoolIdentifier =
-      preferredServerId ||
-      normalizedSchoolId ||
-      matchedSchool?.licenseNumber ||
-      matchedSchool?._id ||
-      matchedSchool?.name;
-
-    if (!schoolIdentifier) return;
-
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this inspection photo?"
-    );
-    if (!confirmed) return;
-
-    try {
-      const success = await deletePhotoFromDatabase(
-        photoId,
-        schoolIdentifier,
-        photo.inspectionId || null,
-        "inspection"
-      );
-
-      if (success) {
-        setPhotos((prev) => prev.filter((_, i) => i !== index));
-        // Adjust viewer if open
-        setViewer((prev) => {
-          if (!prev.isOpen) return prev;
-          let newIndex = prev.index;
-          if (index < prev.index) {
-            newIndex = prev.index - 1;
-          } else if (index === prev.index) {
-            newIndex = Math.min(prev.index, prev.index - 1 + (prev.index > 0 ? 0 : 1));
-          }
-          if (prev.index >= prev.photosLength - 1) {
-            newIndex = Math.max(0, prev.index - 1);
-          }
-          return { ...prev, index: newIndex };
-        });
-      } else {
-        alert("Failed to delete photo. Please try again.");
-      }
-    } catch (err) {
-      console.error("Error deleting inspection photo", err);
-      alert("Failed to delete photo. Please try again.");
-    }
-  };
-
   useEffect(() => {
     if (!normalizedSchoolId && !schoolName) {
       setPhotos([]);
@@ -293,7 +239,10 @@ export default function SchoolWardenPhotoFeed({
 
   const header = (
     <div className={`flex ${isMobile ? 'flex-col items-start' : 'flex-wrap items-center'} justify-between gap-2`}>
-      <div className="flex-1 min-w-0"> 
+      <div className="flex-1 min-w-0">
+        <p className={`${isMobile ? 'text-[10px]' : 'text-xs'} uppercase tracking-wide text-indigo-500 font-semibold break-words`}>
+          Latest Warden Uploads
+        </p>
         <h3 className={`${isMobile ? 'text-sm' : 'text-base sm:text-lg'} font-semibold text-gray-900 flex items-start gap-2 min-w-0 flex-wrap`}>
           <School className={`${isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-indigo-400 flex-shrink-0 mt-0.5`} />
           <span className="break-words min-w-0">{schoolName || normalizedSchoolId}</span>
@@ -377,18 +326,6 @@ export default function SchoolWardenPhotoFeed({
                 className={`w-full ${isMobile ? 'h-36' : 'h-32'} object-cover`}
                 loading="lazy"
               />
-              {/* Delete button (top-right), minimal visual change */}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeletePhoto(photo, idx);
-                }}
-                className="absolute top-1.5 right-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-1 focus:ring-offset-black/40"
-                aria-label="Delete photo"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
               <figcaption className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent ${isMobile ? 'p-1.5' : 'p-2'} ${isMobile ? 'text-[10px]' : 'text-xs'} text-white`}>
                 <div className="flex justify-between items-start gap-2 min-w-0 flex-wrap">
                   <span className="capitalize font-semibold break-words min-w-0">
@@ -525,5 +462,4 @@ export default function SchoolWardenPhotoFeed({
     </div>
   );
 }
-
 
