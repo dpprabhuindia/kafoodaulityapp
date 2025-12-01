@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { Save, FileText, MapPin, Calendar, User, CheckCircle, Store, ShieldCheck, Camera, Upload } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Save, FileText, MapPin, Calendar, User, CheckCircle, Store, ShieldCheck, Camera, Upload, RefreshCcw } from 'lucide-react';
 import KarnatakaLogo from './KarnatakaLogo';
+import ApiService from '../services/api';
 
 const AuditForm = () => {
   const [formData, setFormData] = useState({
+    schoolId: '',
     inspectionType: '',
     schoolName: '',
     schoolType: '',
@@ -33,6 +35,14 @@ const AuditForm = () => {
   });
 
   const [currentSection, setCurrentSection] = useState(0);
+  const [schoolSearch, setSchoolSearch] = useState('');
+  const [schools, setSchools] = useState([]);
+  const [schoolsLoading, setSchoolsLoading] = useState(false);
+  const [schoolsError, setSchoolsError] = useState('');
+  const [selectedSchoolRecordId, setSelectedSchoolRecordId] = useState('');
+  const [inspectionPhotos, setInspectionPhotos] = useState([]);
+  const [schoolPhotosLoading, setSchoolPhotosLoading] = useState(false);
+  const [schoolPhotosError, setSchoolPhotosError] = useState('');
 
   const sections = [
     {
@@ -67,6 +77,47 @@ const AuditForm = () => {
     }
   ];
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchSchools = async () => {
+      try {
+        setSchoolsLoading(true);
+        const data = await ApiService.getSchools();
+        if (!isMounted) return;
+        setSchools(Array.isArray(data) ? data : []);
+        setSchoolsError('');
+      } catch (error) {
+        if (!isMounted) return;
+        console.error('Error fetching schools:', error);
+        setSchoolsError('Unable to load schools. Please try again.');
+      } finally {
+        if (isMounted) {
+          setSchoolsLoading(false);
+        }
+      }
+    };
+
+    fetchSchools();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const filteredSchools = useMemo(() => {
+    if (!schoolSearch.trim()) {
+      return schools;
+    }
+    const term = schoolSearch.toLowerCase();
+    return schools.filter((school) => {
+      const nameMatch = school.name?.toLowerCase().includes(term);
+      const districtMatch = school.district?.toLowerCase().includes(term);
+      const licenseMatch = school.licenseNumber?.toLowerCase().includes(term);
+      return nameMatch || districtMatch || licenseMatch;
+    });
+  }, [schoolSearch, schools]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -89,9 +140,106 @@ const AuditForm = () => {
     alert('Audit form submitted successfully!');
   };
 
+  const handleSchoolSelect = (identifier) => {
+    if (!identifier) {
+      setFormData(prev => ({
+        ...prev,
+        schoolId: '',
+        schoolName: '',
+        licenseNumber: '',
+        district: '',
+        location: '',
+        state: 'Karnataka'
+      }));
+      setSelectedSchoolRecordId('');
+      setInspectionPhotos([]);
+      setSchoolPhotosError('');
+      return;
+    }
+
+    const selectedSchool =
+      schools.find((school) => school.licenseNumber === identifier) ||
+      schools.find((school) => school._id === identifier);
+    const backendIdentifier = selectedSchool?._id || identifier;
+
+    setFormData(prev => ({
+      ...prev,
+      schoolId: identifier,
+      schoolName: selectedSchool?.name || '',
+      licenseNumber: selectedSchool?.licenseNumber || prev.licenseNumber,
+      district: selectedSchool?.district || prev.district,
+      location: selectedSchool?.location || prev.location,
+      state: selectedSchool?.state || prev.state || 'Karnataka'
+    }));
+
+    setSelectedSchoolRecordId(backendIdentifier);
+  };
+
   const nextSection = () => {
     if (currentSection < sections.length - 1) {
       setCurrentSection(currentSection + 1);
+    }
+  };
+
+  const loadSchoolPhotos = async (identifier) => {
+    if (!identifier) {
+      setInspectionPhotos([]);
+      return;
+    }
+
+    try {
+      setSchoolPhotosLoading(true);
+      const photos = await ApiService.getSchoolPhotos(identifier);
+      const normalized = Array.isArray(photos) ? photos : [];
+      const onlyInspectionPhotos = normalized.filter((photo) => {
+        const type = (photo?.photoType || photo?.type || 'inspection').toLowerCase();
+        return type === 'inspection';
+      });
+      setInspectionPhotos(onlyInspectionPhotos);
+      setSchoolPhotosError('');
+    } catch (error) {
+      console.error('Error loading school photos:', error);
+      setInspectionPhotos([]);
+      setSchoolPhotosError('Unable to load existing photos.');
+    } finally {
+      setSchoolPhotosLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedSchoolRecordId) {
+      loadSchoolPhotos(selectedSchoolRecordId);
+    } else {
+      setInspectionPhotos([]);
+      setSchoolPhotosError('');
+    }
+  }, [selectedSchoolRecordId]);
+
+  const resolvePhotoUrl = (photo) => {
+    if (photo?.url) {
+      return photo.url;
+    }
+    const relativePath = photo?.localPath || photo?.path;
+    if (relativePath) {
+      return relativePath.startsWith('http')
+        ? relativePath
+        : `${window.location.origin}/${relativePath.replace(/^\/?/, '')}`;
+    }
+    return '';
+  };
+
+  const formatPhotoDate = (dateValue) => {
+    if (!dateValue) return 'Not available';
+    try {
+      return new Date(dateValue).toLocaleString('en-IN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return dateValue;
     }
   };
 
@@ -187,7 +335,121 @@ const AuditForm = () => {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    School Name
+                    Select School
+                  </label>
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={schoolSearch}
+                      onChange={(e) => setSchoolSearch(e.target.value)}
+                      className="input text-base"
+                      placeholder="Search by school name, district, or license"
+                    />
+                    <select
+                      name="schoolId"
+                      value={formData.schoolId}
+                      onChange={(e) => handleSchoolSelect(e.target.value)}
+                      className="input text-base"
+                      disabled={schoolsLoading}
+                    >
+                      <option value="">
+                        {schoolsLoading ? 'Loading schools...' : 'Select a school'}
+                      </option>
+                      {filteredSchools.map((school) => (
+                        <option
+                          key={school._id}
+                          value={school.licenseNumber || school._id}
+                        >
+                          {school.name}
+                          {school.licenseNumber ? ` (${school.licenseNumber})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    {schoolsError && (
+                      <p className="text-sm text-red-600">{schoolsError}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {selectedSchoolRecordId && (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <Camera className="w-5 h-5 text-primary-600" />
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Recent Inspection Photos</p>
+                        <p className="text-xs text-gray-500">
+                          Inspection photos already uploaded for this school (Amazon S3)
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => loadSchoolPhotos(selectedSchoolRecordId)}
+                      disabled={schoolPhotosLoading}
+                      className="inline-flex items-center justify-center px-3 py-2 rounded-md text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <RefreshCcw className="w-4 h-4 mr-2" />
+                      Refresh
+                    </button>
+                  </div>
+
+                  {schoolPhotosLoading ? (
+                    <div className="flex justify-center py-6">
+                      <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-500 border-t-transparent" />
+                    </div>
+                  ) : schoolPhotosError ? (
+                    <p className="text-sm text-red-600">{schoolPhotosError}</p>
+                  ) : inspectionPhotos.length === 0 ? (
+                    <p className="text-sm text-gray-600">
+                      This school does not have inspection photos yet.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {inspectionPhotos.map((photo) => {
+                        const photoUrl = resolvePhotoUrl(photo);
+                        return (
+                          <div
+                            key={photo.id || photo._id}
+                            className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
+                          >
+                            {photoUrl ? (
+                              <img
+                                src={photoUrl}
+                                alt={photo.caption || photo.originalName || 'School photo'}
+                                className="w-full h-40 object-cover"
+                              />
+                            ) : (
+                              <div className="h-40 bg-gray-100 flex items-center justify-center text-gray-400 text-xs uppercase tracking-wide">
+                                Photo preview unavailable
+                              </div>
+                            )}
+                            <div className="p-3 space-y-1 text-sm text-gray-700">
+                              <p className="font-semibold text-gray-900 truncate">
+                                {photo.caption || photo.originalName || 'Uploaded Photo'}
+                              </p>
+                              <p className="text-xs text-gray-500 capitalize">
+                                {photo.photoType || 'inspection'}
+                                {photo.facilityType ? ` • ${photo.facilityType}` : ''}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {photo.inspector || 'Inspector'} •{' '}
+                                {formatPhotoDate(photo.date || photo.uploadDate)}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 gap-4 sm:gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    School Name (auto-filled)
                   </label>
                   <input
                     type="text"
@@ -195,8 +457,11 @@ const AuditForm = () => {
                     value={formData.schoolName}
                     onChange={handleInputChange}
                     className="input text-base"
-                    placeholder="Enter school name"
+                    placeholder="Selected school name"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    This field is populated automatically when you select a school, but you can adjust it if needed.
+                  </p>
                 </div>
               </div>
 

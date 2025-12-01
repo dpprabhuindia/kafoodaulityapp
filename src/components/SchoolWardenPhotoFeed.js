@@ -110,34 +110,6 @@ export default function SchoolWardenPhotoFeed({
     );
   }, [schools, normalizedSchoolId, schoolName]);
 
-  const identifierCandidates = useMemo(() => {
-    const values = [];
-    const push = (val) => {
-      if (val) {
-        const normalized = String(val).trim().toLowerCase();
-        if (normalized) values.push(normalized);
-      }
-    };
-
-    push(normalizedSchoolId);
-    push(schoolName);
-
-    if (matchedSchool) {
-      const { licenseNumber, _id, id, legacyId, name } = matchedSchool;
-      [
-        licenseNumber,
-        _id,
-        id,
-        legacyId,
-        name,
-        licenseNumber && `${name} (${licenseNumber})`,
-        name && `${name} ()`,
-      ].forEach(push);
-    }
-
-    return Array.from(new Set(values));
-  }, [normalizedSchoolId, schoolName, matchedSchool]);
-
   const preferredServerId =
     matchedSchool?.licenseNumber ||
     matchedSchool?._id ||
@@ -145,33 +117,68 @@ export default function SchoolWardenPhotoFeed({
       ? normalizedSchoolId
       : "");
 
+  const resolvePhotoUrl = (photo = {}) => {
+    if (photo.url && photo.url.startsWith("http")) {
+      return photo.url;
+    }
+
+    if (photo.url && photo.url.startsWith("data:")) {
+      return photo.url;
+    }
+
+    const relativePath = photo.localPath || photo.path || photo.url;
+    if (relativePath) {
+      if (/^https?:\/\//i.test(relativePath)) return relativePath;
+      const normalized = relativePath.startsWith("/")
+        ? relativePath.slice(1)
+        : relativePath;
+      return `${window.location.origin}/${normalized}`;
+    }
+
+    if (photo.photoUrl) {
+      return photo.photoUrl;
+    }
+
+    return "";
+  };
+
   const fetchPhotos = async () => {
-    if (!normalizedSchoolId && !schoolName) return;
+    const identifier = preferredServerId || normalizedSchoolId || schoolName;
+    if (!identifier) {
+      setPhotos([]);
+      return;
+    }
+
     setLoading(true);
     setError("");
     try {
-      const query = preferredServerId
-        ? { schoolId: preferredServerId, limit: 12 }
-        : { limit: 50 };
-      const response = await apiService.getWardenPhotos(query);
-      let records = response?.photos || response || [];
+      const response = await apiService.getSchoolPhotos(identifier);
+      const dataArray = Array.isArray(response) ? response : response?.photos || [];
 
-      if (identifierCandidates.length) {
-        records = records.filter((photo) => {
-          const normalizedPhotoId = String(photo.schoolId || "")
-            .trim()
-            .toLowerCase();
-          return identifierCandidates.some(
-            (candidate) => candidate && normalizedPhotoId === candidate
-          );
-        });
-      }
+      const inspectionPhotos = dataArray
+        .filter((photo) => {
+          const type = (photo?.photoType || photo?.type || "inspection").toLowerCase();
+          return type === "inspection";
+        })
+        .map((photo) => {
+          const photoUrl = resolvePhotoUrl(photo);
+          return {
+            _id: photo.id || photo._id || `${photo.filename || ""}-${photo.uploadDate || ""}`,
+            photoUrl,
+            mealType: photo.photoType || "inspection",
+            uploadedBy: { name: photo.inspector || "Inspector" },
+            timestamp: photo.uploadDate || photo.date || photo.createdAt,
+            schoolId: photo.schoolId || photo.schoolName || matchedSchool?.name || normalizedSchoolId,
+          };
+        })
+        .filter((photo) => !!photo.photoUrl);
 
-      setPhotos(records);
+      setPhotos(inspectionPhotos);
       setLastUpdated(new Date());
     } catch (err) {
-      console.error("Failed to fetch warden photos", err);
+      console.error("Failed to fetch inspection photos", err);
       setError("Unable to load latest uploads");
+      setPhotos([]);
     } finally {
       setLoading(false);
     }

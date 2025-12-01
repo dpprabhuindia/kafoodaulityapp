@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { 
   Plus, 
   MapPin, 
@@ -17,6 +17,7 @@ import { uploadPhoto, deletePhoto, ensureDirectoryExists } from '../utils/unifie
 import { useI18n } from '../i18n/I18nProvider';
 import { detectDevice } from '../utils/deviceDetection';
 import SchoolWardenPhotoFeed from './SchoolWardenPhotoFeed';
+import ApiService from '../services/api';
 
 const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true }) => {
   const { t } = useI18n();
@@ -51,53 +52,39 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
     level: 'District Level'
   });
 
-  // Sample existing schools data
-  const existingSchools = [
-    {
-      id: 1,
-      licenseNumber: 'KA-BLR-0001',
-      name: 'Government High School Bangalore North',
-      location: 'Bangalore North, Karnataka',
-      phone: '+91 80 2234 5678',
-      email: 'ghsblrnorth@karnataka.gov.in',
-      category: 'Higher Secondary',
-      level: 'State Level',
-      studentCount: 850
-    },
-    {
-      id: 2,
-      licenseNumber: 'KA-MYS-0002',
-      name: 'Government Primary School Mysore',
-      location: 'Mysore, Karnataka',
-      phone: '+91 821 2345 678',
-      email: 'gpsmysore@karnataka.gov.in',
-      category: 'Primary School',
-      level: 'District Level',
-      studentCount: 320
-    },
-    {
-      id: 3,
-      licenseNumber: 'KA-HBL-0003',
-      name: 'Government Higher Secondary School Hubli',
-      location: 'Hubli, Karnataka',
-      phone: '+91 836 2456 789',
-      email: 'ghsshubli@karnataka.gov.in',
-      category: 'Higher Secondary',
-      level: 'State Level',
-      studentCount: 1200
-    },
-    {
-      id: 4,
-      licenseNumber: 'KA-MNG-0004',
-      name: 'Government Primary School Mangalore',
-      location: 'Mangalore, Karnataka',
-      phone: '+91 824 2567 890',
-      email: 'gpsmangalore@karnataka.gov.in',
-      category: 'Primary School',
-      level: 'Taluk Level',
-      studentCount: 280
-    }
-  ];
+  const [existingSchools, setExistingSchools] = useState([]);
+  const [schoolsLoading, setSchoolsLoading] = useState(false);
+  const [schoolsError, setSchoolsError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchSchools = async () => {
+      try {
+        setSchoolsLoading(true);
+        const data = await ApiService.getSchools();
+        if (!isMounted) return;
+        const normalized = Array.isArray(data) ? data : data?.schools || [];
+        setExistingSchools(normalized);
+        setSchoolsError('');
+      } catch (error) {
+        if (!isMounted) return;
+        console.error('Error fetching schools:', error);
+        setExistingSchools([]);
+        setSchoolsError('Unable to load schools. Please try again.');
+      } finally {
+        if (isMounted) {
+          setSchoolsLoading(false);
+        }
+      }
+    };
+
+    fetchSchools();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSchoolSelect = (schoolIdentifier) => {
     setSelectedSchool(schoolIdentifier);
@@ -272,9 +259,11 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
   };
 
   const selectedSchoolData = existingSchools.find(
-    school =>
+    (school) =>
       school.licenseNumber === selectedSchool ||
+      school._id === selectedSchool ||
       school.id === selectedSchool ||
+      String(school._id) === String(selectedSchool) ||
       String(school.id) === String(selectedSchool)
   );
   const selectedSchoolIdentifier = useMemo(() => {
@@ -331,14 +320,28 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                         value={selectedSchool || ''}
                         onChange={(e) => handleSchoolSelect(e.target.value)}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 cursor-pointer text-base"
+                        disabled={schoolsLoading}
                       >
-                        <option value="">{t('inspection.selectSchoolPlaceholder')}</option>
+                        <option value="">
+                          {schoolsLoading
+                            ? t('inspection.loadingSchools') || 'Loading schools...'
+                            : t('inspection.selectSchoolPlaceholder')}
+                        </option>
                         {existingSchools.map((school) => (
-                          <option key={school.id} value={school.licenseNumber}>
-                            {school.name} ({school.licenseNumber})
+                          <option
+                            key={school._id || school.id}
+                            value={school.licenseNumber || school._id || school.id}
+                          >
+                            {school.name}
+                            {school.licenseNumber
+                              ? ` (${school.licenseNumber})`
+                              : ''}
                           </option>
                         ))}
                       </select>
+                      {schoolsError && (
+                        <p className="mt-1 text-sm text-red-600">{schoolsError}</p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-end">

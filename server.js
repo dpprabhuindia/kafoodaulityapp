@@ -9,6 +9,9 @@ const fs = require('fs');
 // Load environment variables
 dotenv.config();
 
+// Import S3 utilities
+const { uploadToS3, deleteFromS3, generateS3Key } = require('./src/config/s3');
+
 // Import models
 const School = require('./src/models/School');
 const Inspection = require('./src/models/Inspection');
@@ -84,15 +87,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Serve uploaded files
 app.use('/uploads', express.static('uploads'));
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(file.originalname));
-  }
-});
+// Configure multer for file uploads - using memory storage for S3
+const storage = multer.memoryStorage();
 
 const upload = multer({ 
   storage: storage,
@@ -218,7 +214,7 @@ const buildFileUrl = (req, filePath) => {
   return `${req.protocol}://${req.get('host')}${relative}`;
 };
 
-// Upload facility photo for a school with database storage
+// Upload facility photo for a school with S3 storage
 app.post('/api/schools/:id/facility-photos', upload.single('photo'), async (req, res) => {
   try {
     if (!req.file) {
@@ -230,25 +226,28 @@ app.post('/api/schools/:id/facility-photos', upload.single('photo'), async (req,
       return res.status(404).json({ message: 'School not found' });
     }
 
-    const fs = require('fs');
-    const fileData = fs.readFileSync(req.file.path);
-    const base64Data = fileData.toString('base64');
-
     const facilityType = (req.body.facilityType || 'facility').toLowerCase();
     const facilityLabel = facilityType.charAt(0).toUpperCase() + facilityType.slice(1);
-    const relativePath = `database/${req.params.id}/facility_${facilityType}/${req.file.filename}`;
+    
+    // Generate unique filename
+    const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(req.file.originalname)}`;
+    
+    // Generate S3 key
+    const s3Key = generateS3Key(req.params.id, 'facility', filename, null, facilityType);
+    
+    // Upload to S3
+    const s3Url = await uploadToS3(req.file.buffer, s3Key, req.file.mimetype);
 
     const photoRecord = {
-      filename: req.file.filename,
+      filename: filename,
       originalName: req.file.originalname,
-      path: relativePath,
-      url: buildFileUrl(req, `uploads/${req.file.filename}`),
+      path: s3Key,
+      url: s3Url,
       size: req.file.size,
       caption: req.body.caption || `${facilityLabel} Facility - ${req.file.originalname}`,
       facilityType,
       inspector: req.body.inspector || 'Facility Manager',
       photoType: 'facility',
-      data: base64Data,
       mimeType: req.file.mimetype,
       uploadDate: new Date()
     };
@@ -259,12 +258,9 @@ app.post('/api/schools/:id/facility-photos', upload.single('photo'), async (req,
 
     const savedPhoto = school.photos[school.photos.length - 1];
 
-    // Clean up uploaded file since we're storing in database
-    fs.unlinkSync(req.file.path);
-
     const responsePhoto = {
       id: savedPhoto._id,
-      url: `data:${savedPhoto.mimeType};base64,${savedPhoto.data}`,
+      url: savedPhoto.url,
       caption: savedPhoto.caption,
       date: savedPhoto.uploadDate,
       inspector: savedPhoto.inspector,
@@ -304,7 +300,7 @@ app.get('/api/schools/:id/photos', async (req, res) => {
     ).lean();
     const facilityPhotos = (school.photos || []).map((photo) => ({
       id: photo._id,
-      url: photo.data ? `data:${photo.mimeType};base64,${photo.data}` : (photo.url || buildFileUrl(req, photo.path || `uploads/${photo.filename}`)),
+      url: photo.url || (photo.data ? `data:${photo.mimeType};base64,${photo.data}` : buildFileUrl(req, photo.path || `uploads/${photo.filename}`)),
       caption: photo.caption || photo.originalName || 'Facility Photo',
       date: photo.uploadDate || new Date(),
       inspector: photo.inspector || 'Facility Manager',
@@ -319,7 +315,7 @@ app.get('/api/schools/:id/photos', async (req, res) => {
         const relativePath = photo.path || `uploads/${photo.filename}`;
         return {
           id: photo._id || `${inspection._id}-${photo.filename}`,
-          url: photo.data ? `data:${photo.mimeType};base64,${photo.data}` : (photo.url || buildFileUrl(req, relativePath)),
+          url: photo.url || (photo.data ? `data:${photo.mimeType};base64,${photo.data}` : buildFileUrl(req, relativePath)),
           caption: photo.caption || (photo.originalName
             ? `Inspection Photo - ${photo.originalName}`
             : 'Inspection Photo'),
@@ -464,28 +460,40 @@ app.delete('/api/inspections/:id', async (req, res) => {
   }
 });
 
-// Upload inspection photo with database storage
+// Upload inspection photo with S3 storage
 app.post('/api/inspections/upload-photo', upload.single('photo'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    const fs = require('fs');
-    const fileData = fs.readFileSync(req.file.path);
-    const base64Data = fileData.toString('base64');
+    // Generate unique filename
+    const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(req.file.originalname)}`;
+    
+    // Get schoolId from inspection if available
+    let schoolId = req.body.schoolId;
+    if (req.body.inspectionId) {
+      const inspection = await Inspection.findById(req.body.inspectionId);
+      if (inspection) {
+        schoolId = inspection.schoolId;
+      }
+    }
+    
+    // Generate S3 key
+    const s3Key = generateS3Key(schoolId || 'unknown', 'inspection', filename, req.body.inspectionId || null);
+    
+    // Upload to S3
+    const s3Url = await uploadToS3(req.file.buffer, s3Key, req.file.mimetype);
 
-    const relativePath = `uploads/${req.file.filename}`;
     const photoData = {
-      filename: req.file.filename,
+      filename: filename,
       originalName: req.file.originalname,
-      path: relativePath,
-      url: buildFileUrl(req, relativePath),
+      path: s3Key,
+      url: s3Url,
       size: req.file.size,
       caption: req.body.caption || `Inspection Photo - ${req.file.originalname}`,
       inspector: req.body.inspector || 'Inspector',
       photoType: 'inspection',
-      data: base64Data,
       mimeType: req.file.mimetype,
       uploadDate: new Date()
     };
@@ -498,9 +506,6 @@ app.post('/api/inspections/upload-photo', upload.single('photo'), async (req, re
       );
     }
 
-    // Clean up uploaded file since we're storing in database
-    fs.unlinkSync(req.file.path);
-
     res.json({
       message: 'Photo uploaded successfully',
       photo: {
@@ -511,7 +516,7 @@ app.post('/api/inspections/upload-photo', upload.single('photo'), async (req, re
         caption: photoData.caption,
         inspector: photoData.inspector,
         uploadDate: photoData.uploadDate,
-        url: `data:${photoData.mimeType};base64,${photoData.data}`
+        url: photoData.url
       }
     });
   } catch (error) {
@@ -693,16 +698,22 @@ app.post('/api/warden-photos/upload', upload.single('photo'), async (req, res) =
       return res.status(400).json({ message: 'Missing required fields: schoolId, mealType' });
     }
     
-    // Build absolute photo URL based on configured base or incoming request
-    const photoUrl = `${getAbsoluteBaseUrl(req)}/uploads/${req.file.filename}`;
+    // Generate unique filename
+    const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(req.file.originalname)}`;
+    
+    // Generate S3 key for warden photo
+    const s3Key = generateS3Key(schoolId, 'warden', filename, null, mealType);
+    
+    // Upload to S3
+    const s3Url = await uploadToS3(req.file.buffer, s3Key, req.file.mimetype);
     
     // Create warden photo record
     const wardenPhoto = new WardenPhoto({
       schoolId,
       mealType,
-      photoUrl,
+      photoUrl: s3Url,
       uploadedBy: req.body.uploadedBy || 'anonymous', // Will be set by auth middleware in production
-      filename: req.file.filename,
+      filename: filename,
       originalName: req.file.originalname,
       size: req.file.size,
       mimeType: req.file.mimetype,
@@ -781,10 +792,22 @@ app.delete('/api/warden-photos/:photoId', async (req, res) => {
   try {
     const { photoId } = req.params;
     
-    const photo = await WardenPhoto.findByIdAndDelete(photoId);
+    const photo = await WardenPhoto.findById(photoId);
     if (!photo) {
       return res.status(404).json({ message: 'Photo not found' });
     }
+    
+    // Delete from S3 if photo has S3 URL
+    if (photo.photoUrl) {
+      try {
+        await deleteFromS3(photo.photoUrl);
+      } catch (s3Error) {
+        console.error('Error deleting from S3 (continuing anyway):', s3Error);
+        // Continue even if S3 deletion fails
+      }
+    }
+    
+    await photo.deleteOne();
     
     // Broadcast photo deletion via SSE
     broadcastPhotoUpdate(photo.schoolId, 'warden_photo_deleted', {
@@ -973,7 +996,7 @@ app.get('/api/warden-photos/stats', async (req, res) => {
 
 // PHOTO MANAGEMENT ROUTES
 
-// Upload photo with base64 data (for mobile/web uploads)
+// Upload photo with base64 data (for mobile/web uploads) - using S3
 app.post('/api/photos/upload', async (req, res) => {
   try {
     const { 
@@ -1005,34 +1028,24 @@ app.post('/api/photos/upload', async (req, res) => {
     const detectedMimeType = mimeType || (hasDataPrefix ? photoData.split(';')[0].split(':')[1] : 'image/jpeg');
     const buffer = Buffer.from(base64Payload, 'base64');
 
-    const sanitizeSegment = (segment, fallback) => {
-      const value = (segment || fallback || 'general').toString();
-      return value.replace(/[^a-zA-Z0-9-_]/g, '_');
-    };
-
-    const schoolSegment = sanitizeSegment(schoolId, 'unknown_school');
-    const inspectionSegment = sanitizeSegment(inspectionId || 'general', 'general');
-    const uploadDir = path.join('uploads', 'inspection-photos', schoolSegment, inspectionSegment);
-    fs.mkdirSync(uploadDir, { recursive: true });
-
+    // Generate unique filename
     const safeFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const filePath = path.join(uploadDir, safeFilename);
-    fs.writeFileSync(filePath, buffer);
+    const uniqueFilename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(safeFilename)}`;
+    
+    // Generate S3 key
+    const s3Key = generateS3Key(schoolId, photoType, uniqueFilename, inspectionId, facilityType);
+    
+    // Upload to S3
+    const s3Url = await uploadToS3(buffer, s3Key, detectedMimeType);
 
-    const relativePath = filePath.replace(/\\/g, '/');
-    const normalizedPath = relativePath.startsWith('uploads/')
-      ? relativePath
-      : `uploads/${relativePath.split('uploads/').pop()}`;
-
-    const fileUrl = buildFileUrl(req, normalizedPath);
     const resolvedCaption = caption || `${photoType.charAt(0).toUpperCase() + photoType.slice(1)} Photo - ${originalName || filename}`;
     const resolvedInspector = inspector || (photoType === 'facility' ? 'Facility Manager' : 'Inspector');
 
     const basePhotoRecord = {
-      filename: safeFilename,
+      filename: uniqueFilename,
       originalName: originalName || filename,
-      path: normalizedPath,
-      url: fileUrl,
+      path: s3Key,
+      url: s3Url,
       size: size || buffer.length,
       caption: resolvedCaption,
       inspector: resolvedInspector,
@@ -1044,7 +1057,7 @@ app.post('/api/photos/upload', async (req, res) => {
 
     const responsePhoto = {
       ...basePhotoRecord,
-      localPath: normalizedPath
+      localPath: s3Key
     };
 
     const isValidInspectionObjectId = inspectionId && isValidObjectId(inspectionId);
@@ -1084,7 +1097,7 @@ app.post('/api/photos/upload', async (req, res) => {
 
       broadcastPhotoUpdate(schoolId, 'photo_added', responsePhoto);
     } else {
-      console.warn(`School not found for identifier ${schoolId}. Returning local path only.`);
+      console.warn(`School not found for identifier ${schoolId}. Returning S3 URL only.`);
       responsePhoto.id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     }
 
@@ -1110,9 +1123,9 @@ app.get('/api/schools/:id/photos-db', async (req, res) => {
     // Get facility photos from school
     const facilityPhotos = (schoolDoc.photos || []).map((photo) => {
       const fallbackPath = photo.path || (photo.filename ? `uploads/${photo.filename}` : '');
-      const resolvedUrl = photo.data
+      const resolvedUrl = photo.url || (photo.data
         ? `data:${photo.mimeType};base64,${photo.data}`
-        : (photo.url || (fallbackPath ? buildFileUrl(req, fallbackPath) : null));
+        : (fallbackPath ? buildFileUrl(req, fallbackPath) : null));
 
       return {
         id: photo._id,
@@ -1136,9 +1149,9 @@ app.get('/api/schools/:id/photos-db', async (req, res) => {
     const inspectionPhotos = inspections.flatMap((inspection) =>
       (inspection.photos || []).map((photo) => {
         const fallbackPath = photo.path || (photo.filename ? `uploads/${photo.filename}` : '');
-        const resolvedUrl = photo.data
+        const resolvedUrl = photo.url || (photo.data
           ? `data:${photo.mimeType};base64,${photo.data}`
-          : (photo.url || (fallbackPath ? buildFileUrl(req, fallbackPath) : null));
+          : (fallbackPath ? buildFileUrl(req, fallbackPath) : null));
 
         return {
           id: photo._id || `${inspection._id}-${photo.filename}`,
@@ -1170,30 +1183,46 @@ app.get('/api/schools/:id/photos-db', async (req, res) => {
   }
 });
 
-// Delete photo from database
+// Delete photo from database and S3
 app.delete('/api/photos/:photoId', async (req, res) => {
   try {
     const { photoId } = req.params;
     const { schoolId, inspectionId, photoType } = req.query;
 
-    if (photoType === 'inspection' && inspectionId) {
-      // Remove from inspection
+    let photoToDelete = null;
+
+    if (photoType === 'inspection' && inspectionId && isValidObjectId(inspectionId)) {
+      // Remove from inspection (only if inspectionId is a valid ObjectId)
       const inspection = await Inspection.findById(inspectionId);
       if (!inspection) {
         return res.status(404).json({ message: 'Inspection not found' });
       }
       
+      photoToDelete = inspection.photos.find(photo => photo._id.toString() === photoId);
       inspection.photos = inspection.photos.filter(photo => photo._id.toString() !== photoId);
       await inspection.save();
     } else {
-      // Remove from school
+      // Remove from school (or from non-persisted inspection photos that were attached to school)
       const school = await findSchoolByIdentifier(schoolId);
       if (!school) {
-        return res.status(404).json({ message: 'School not found' });
+        console.warn('School not found while deleting photo:', { schoolId, photoId, inspectionId, photoType });
+        // Even if school doesn't exist in DB, we can still attempt S3 delete below using only photoId info
+      } else {
+        photoToDelete = school.photos.find(photo => photo._id.toString() === photoId);
+        school.photos = school.photos.filter(photo => photo._id.toString() !== photoId);
+        await school.save();
       }
-      
-      school.photos = school.photos.filter(photo => photo._id.toString() !== photoId);
-      await school.save();
+    }
+
+    // Delete from S3 if photo exists and has S3 path/URL
+    if (photoToDelete && (photoToDelete.path || photoToDelete.url)) {
+      try {
+        const s3Key = photoToDelete.path || photoToDelete.url;
+        await deleteFromS3(s3Key);
+      } catch (s3Error) {
+        console.error('Error deleting from S3 (continuing anyway):', s3Error);
+        // Continue even if S3 deletion fails
+      }
     }
 
     // Broadcast photo deletion via SSE
