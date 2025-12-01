@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Save, FileText, MapPin, Calendar, User, CheckCircle, Store, ShieldCheck, Camera, Upload, RefreshCcw } from 'lucide-react';
+import { Save, FileText, MapPin, Calendar, User, CheckCircle, Store, ShieldCheck, Camera, Upload, RefreshCcw, Trash2 } from 'lucide-react';
 import KarnatakaLogo from './KarnatakaLogo';
 import ApiService from '../services/api';
+import { deletePhotoFromDatabase } from '../utils/databasePhotoStorage';
 
 const AuditForm = () => {
   const [formData, setFormData] = useState({
@@ -243,6 +244,34 @@ const AuditForm = () => {
     }
   };
 
+  const handleDeletePhoto = async (photo) => {
+    if (!photo || !photo.id || !selectedSchoolRecordId) return;
+
+    const confirmed = window.confirm('Are you sure you want to delete this inspection photo?');
+    if (!confirmed) return;
+
+    try {
+      const inspectionId = photo.inspectionId || null;
+      const success = await deletePhotoFromDatabase(
+        photo.id,
+        selectedSchoolRecordId,
+        inspectionId,
+        'inspection'
+      );
+
+      if (success) {
+        setInspectionPhotos(prev =>
+          prev.filter(p => (p.id || p._id) !== (photo.id || photo._id))
+        );
+      } else {
+        alert('Failed to delete photo. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+      alert('Failed to delete photo. Please try again.');
+    }
+  };
+
   const prevSection = () => {
     if (currentSection > 0) {
       setCurrentSection(currentSection - 1);
@@ -412,7 +441,7 @@ const AuditForm = () => {
                         return (
                           <div
                             key={photo.id || photo._id}
-                            className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
+                            className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm flex flex-col"
                           >
                             {photoUrl ? (
                               <img
@@ -425,7 +454,7 @@ const AuditForm = () => {
                                 Photo preview unavailable
                               </div>
                             )}
-                            <div className="p-3 space-y-1 text-sm text-gray-700">
+                            <div className="p-3 space-y-1 text-sm text-gray-700 flex-1">
                               <p className="font-semibold text-gray-900 truncate">
                                 {photo.caption || photo.originalName || 'Uploaded Photo'}
                               </p>
@@ -437,6 +466,16 @@ const AuditForm = () => {
                                 {photo.inspector || 'Inspector'} •{' '}
                                 {formatPhotoDate(photo.date || photo.uploadDate)}
                               </p>
+                            </div>
+                            <div className="px-3 pb-3 pt-1 flex justify-end">
+                              <button
+                                type="button"
+                                onClick={() => handleDeletePhoto(photo)}
+                                className="inline-flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700 active:text-red-800"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Delete</span>
+                              </button>
                             </div>
                           </div>
                         );
