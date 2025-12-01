@@ -1117,10 +1117,6 @@ app.post('/api/photos/upload', async (req, res) => {
 
       // Broadcast photo update via SSE
       broadcastPhotoUpdate(schoolId, 'photo_added', responsePhoto);
-    } else {
-      console.warn(`School not found for identifier ${schoolId}. Returning local path only.`);
-      responsePhoto.id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    }
 
       res.status(201).json({
         message: 'Photo uploaded successfully',
