@@ -4,7 +4,6 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 
 // Load environment variables
 dotenv.config();
@@ -18,9 +17,6 @@ const Inspection = require('./src/models/Inspection');
 const WardenPhoto = require('./src/models/WardenPhoto');
 const User = require('./src/models/User');
 const { isValidObjectId } = mongoose;
-
-// Twitter posting is handled by the backend with batching support
-// Web portal no longer posts to Twitter directly to avoid duplicates
 
 const findSchoolByIdentifier = async (identifier) => {
   if (!identifier) return null;
@@ -118,6 +114,15 @@ const connectDB = async () => {
 
 // Connect to database
 connectDB();
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
 
 // Helper function to broadcast photo updates to all connected clients
 const broadcastPhotoUpdate = (schoolId, eventType, photoData) => {
@@ -668,9 +673,6 @@ app.post('/api/warden-photos', async (req, res) => {
       uploadedBy: savedPhoto.uploadedBy,
       status: savedPhoto.status
     });
-
-    // Twitter posting is handled by the backend with batching support
-    // Do NOT post to Twitter here to avoid duplicate posts
     
     res.status(201).json({
       success: true,
@@ -732,9 +734,6 @@ app.post('/api/warden-photos/upload', upload.single('photo'), async (req, res) =
       uploadedBy: savedPhoto.uploadedBy,
       status: savedPhoto.status
     });
-
-    // Twitter posting is handled by the backend with batching support
-    // Do NOT post to Twitter here to avoid duplicate posts
     
     res.status(201).json({
       success: true,
@@ -1017,11 +1016,8 @@ app.post('/api/photos/upload', async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields: schoolId, photoData, filename' });
     }
 
-    const hasDataPrefix = photoData.startsWith('data:');
-    const base64Parts = photoData.split(',');
-    const base64Payload = hasDataPrefix ? base64Parts[1] : base64Parts[0];
-
-    if (!base64Payload) {
+    // Validate base64 data
+    if (!photoData.startsWith('data:')) {
       return res.status(400).json({ message: 'Invalid photo data format' });
     }
 
@@ -1042,69 +1038,95 @@ app.post('/api/photos/upload', async (req, res) => {
     const resolvedInspector = inspector || (photoType === 'facility' ? 'Facility Manager' : 'Inspector');
 
     const basePhotoRecord = {
-      filename: uniqueFilename,
+      filename: safeFilename,
       originalName: originalName || filename,
-      path: s3Key,
-      url: s3Url,
+      path: normalizedPath,
+      url: fileUrl,
       size: size || buffer.length,
       caption: resolvedCaption,
       inspector: resolvedInspector,
       photoType,
       facilityType,
-      mimeType: detectedMimeType,
+      data: base64Data,
+      mimeType: mimeType || detectedMimeType,
       uploadDate: new Date()
     };
 
     const responsePhoto = {
       ...basePhotoRecord,
-      localPath: s3Key
+      localPath: normalizedPath
     };
 
     const isValidInspectionObjectId = inspectionId && isValidObjectId(inspectionId);
 
     if (photoType === 'inspection' && inspectionId && isValidInspectionObjectId) {
       const inspection = await Inspection.findById(inspectionId);
-      if (inspection) {
-        inspection.photos = inspection.photos || [];
-        inspection.photos.push(basePhotoRecord);
-        await inspection.save();
-
-        const savedPhoto = inspection.photos[inspection.photos.length - 1];
-        responsePhoto.id = savedPhoto._id;
-
-        broadcastPhotoUpdate(schoolId, 'photo_added', responsePhoto);
-
-        return res.status(201).json({
-          message: 'Inspection photo uploaded successfully',
-          photo: responsePhoto
-        });
+      if (!inspection) {
+        return res.status(404).json({ message: 'Inspection not found' });
       }
+      
+      inspection.photos.push(photoRecord);
+      await inspection.save();
+      
+      const savedPhoto = inspection.photos[inspection.photos.length - 1];
+      
+      const responsePhoto = {
+        id: savedPhoto._id,
+        filename: savedPhoto.filename,
+        originalName: savedPhoto.originalName,
+        size: savedPhoto.size,
+        caption: savedPhoto.caption,
+        inspector: savedPhoto.inspector,
+        photoType: savedPhoto.photoType,
+        uploadDate: savedPhoto.uploadDate,
+        url: `data:${savedPhoto.mimeType};base64,${savedPhoto.data}`
+      };
 
-      console.warn(`Inspection not found for ID ${inspectionId}. Storing photo under school record instead.`);
-    }
+      // Broadcast photo update via SSE
+      broadcastPhotoUpdate(schoolId, 'photo_added', responsePhoto);
 
-    const school = await findSchoolByIdentifier(schoolId);
-    if (school) {
-      school.photos = school.photos || [];
-      school.photos.push({
-        ...basePhotoRecord,
-        inspectionId: isValidInspectionObjectId ? inspectionId : undefined
+      res.status(201).json({
+        message: 'Inspection photo uploaded successfully',
+        photo: responsePhoto
       });
+    } else {
+      // Add to school (facility or general photos)
+      const school = await findSchoolByIdentifier(schoolId);
+      if (!school) {
+        return res.status(404).json({ message: 'School not found' });
+      }
+      
+      school.photos = school.photos || [];
+      school.photos.push(photoRecord);
       await school.save();
-
+      
       const savedPhoto = school.photos[school.photos.length - 1];
-      responsePhoto.id = savedPhoto._id;
+      
+      const responsePhoto = {
+        id: savedPhoto._id,
+        filename: savedPhoto.filename,
+        originalName: savedPhoto.originalName,
+        size: savedPhoto.size,
+        caption: savedPhoto.caption,
+        inspector: savedPhoto.inspector,
+        photoType: savedPhoto.photoType,
+        facilityType: savedPhoto.facilityType,
+        uploadDate: savedPhoto.uploadDate,
+        url: `data:${savedPhoto.mimeType};base64,${savedPhoto.data}`
+      };
 
+      // Broadcast photo update via SSE
       broadcastPhotoUpdate(schoolId, 'photo_added', responsePhoto);
     } else {
-      console.warn(`School not found for identifier ${schoolId}. Returning S3 URL only.`);
+      console.warn(`School not found for identifier ${schoolId}. Returning local path only.`);
       responsePhoto.id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     }
 
-    res.status(201).json({
-      message: photoType === 'inspection' ? 'Inspection photo uploaded successfully' : 'Photo uploaded successfully',
-      photo: responsePhoto
-    });
+      res.status(201).json({
+        message: 'Photo uploaded successfully',
+        photo: responsePhoto
+      });
+    }
   } catch (error) {
     console.error('Error uploading photo:', error);
     res.status(500).json({ message: error.message });
@@ -1123,9 +1145,9 @@ app.get('/api/schools/:id/photos-db', async (req, res) => {
     // Get facility photos from school
     const facilityPhotos = (schoolDoc.photos || []).map((photo) => {
       const fallbackPath = photo.path || (photo.filename ? `uploads/${photo.filename}` : '');
-      const resolvedUrl = photo.url || (photo.data
+      const resolvedUrl = photo.data
         ? `data:${photo.mimeType};base64,${photo.data}`
-        : (fallbackPath ? buildFileUrl(req, fallbackPath) : null));
+        : (photo.url || (fallbackPath ? buildFileUrl(req, fallbackPath) : null));
 
       return {
         id: photo._id,
@@ -1149,9 +1171,9 @@ app.get('/api/schools/:id/photos-db', async (req, res) => {
     const inspectionPhotos = inspections.flatMap((inspection) =>
       (inspection.photos || []).map((photo) => {
         const fallbackPath = photo.path || (photo.filename ? `uploads/${photo.filename}` : '');
-        const resolvedUrl = photo.url || (photo.data
+        const resolvedUrl = photo.data
           ? `data:${photo.mimeType};base64,${photo.data}`
-          : (fallbackPath ? buildFileUrl(req, fallbackPath) : null));
+          : (photo.url || (fallbackPath ? buildFileUrl(req, fallbackPath) : null));
 
         return {
           id: photo._id || `${inspection._id}-${photo.filename}`,
