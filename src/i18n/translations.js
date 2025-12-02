@@ -3,7 +3,7 @@ export const translations = {
   en: {
     app: {
       title: 'Food Transparency Portal',
-      subtitle: 'Social Welfare Department',
+      subtitle: 'Directorate of Minorities',
       short: 'FTP',
     },
     establishments: {
@@ -122,7 +122,7 @@ export const translations = {
     },
     login: {
       title: 'Food Transparency Portal',
-      subtitle: 'Social Welfare Department',
+      subtitle: 'Directorate of Minorities',
       helper: 'Sign in to access the food safety inspection system',
       username: 'Username',
       password: 'Password',
@@ -155,7 +155,7 @@ export const translations = {
     },
     dashboard: {
       title: 'Food Transparency Portal Dashboard',
-      subtitle: 'Social Welfare Department - Food Transparency Monitoring System',
+      subtitle: 'Directorate of Minorities - Food Transparency Monitoring System',
       karnatakaGovtSchools: 'Karnataka Govt Schools',
       pendingInspections: 'Pending Inspections',
       safetyCompliance: 'Safety Compliance',
