@@ -16,17 +16,59 @@ ReactDOM.render(
 // Register service worker for PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
       .then((registration) => {
-        console.log('SW registered: ', registration);
+        console.log('[SW] Service worker registered:', registration);
         
-        // Check for updates every hour
+        // Check for updates immediately
+        registration.update();
+        
+        // Check for updates on page focus (when user returns to tab)
+        window.addEventListener('focus', () => {
+          registration.update();
+        });
+        
+        // Listen for service worker updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            console.log('[SW] New service worker found, installing...');
+            
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New service worker is installed and ready
+                console.log('[SW] New service worker installed and ready');
+                
+                // Notify user about update
+                if (window.confirm('A new version of the app is available. Reload to update?')) {
+                  // User wants to update - unregister old worker and reload
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  window.location.reload();
+                }
+              } else if (newWorker.state === 'activated') {
+                // Service worker activated - reload to use new version
+                console.log('[SW] Service worker activated');
+                if (navigator.serviceWorker.controller) {
+                  window.location.reload();
+                }
+              }
+            });
+          }
+        });
+        
+        // Listen for controller change (when new service worker takes control)
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          console.log('[SW] Controller changed, reloading page...');
+          window.location.reload();
+        });
+        
+        // Periodic update check (every hour)
         setInterval(() => {
           registration.update();
         }, 60 * 60 * 1000);
       })
       .catch((registrationError) => {
-        console.log('SW registration failed: ', registrationError);
+        console.error('[SW] Service worker registration failed:', registrationError);
       });
   });
 }
