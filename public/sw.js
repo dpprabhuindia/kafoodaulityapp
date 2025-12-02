@@ -2,7 +2,7 @@
 // IMPORTANT: Update SW_VERSION on each deployment to force cache refresh
 // This ensures users get the latest version without manual cache clearing
 // Format: Use semantic versioning (e.g., '2.0.1', '2.1.0', '3.0.0') or timestamp (e.g., '2.0.0-20240115')
-const SW_VERSION = '2.0.1';
+const SW_VERSION = '2.0.2';
 const CACHE_NAME = `food-transparency-portal-${SW_VERSION}`;
 const urlsToCache = [
   '/',
