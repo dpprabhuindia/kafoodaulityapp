@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Users, 
-  FileText, 
-  AlertTriangle, 
-  CheckCircle, 
-  TrendingUp, 
-  Calendar, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Clock, 
-  Star, 
-  Award, 
-  Target, 
-  Building, 
-  Shield, 
-  Camera, 
-  Download, 
-  Plus, 
+import {
+  Users,
+  FileText,
+  AlertTriangle,
+  CheckCircle,
+  TrendingUp,
+  Calendar,
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Star,
+  Award,
+  Target,
+  Building,
+  Shield,
+  Camera,
+  Download,
+  Plus,
   BarChart3,
   Store,
   ShieldCheck,
@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import KarnatakaLogo from './KarnatakaLogo';
 import { useI18n } from '../i18n/I18nProvider';
+import MainPageImage from '../images/MainPageImage.jpeg';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -160,6 +161,13 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+        <div className="mt-6 w-full rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-gray-50">
+          <img
+            src={MainPageImage}
+            alt="Main Page Dashboard"
+            className="w-full h-[250px] sm:h-[300px] md:h-[400px] lg:h-[450px] object-fill"
+          />
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -167,14 +175,13 @@ const Dashboard = () => {
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.name} className="stat-card group">
+            <div key={stat.nameKey} className="stat-card group">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <div className={`${stat.color} p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                   <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                 </div>
-                <div className={`text-xl sm:text-2xl font-bold ${
-                  stat.changeType === 'increase' ? 'text-green-500' : 'text-red-500'
-                }`}>
+                <div className={`text-xl sm:text-2xl font-bold ${stat.changeType === 'increase' ? 'text-green-500' : 'text-red-500'
+                  }`}>
                   {stat.changeType === 'increase' ? '↗' : '↘'}
                 </div>
               </div>
@@ -182,11 +189,10 @@ const Dashboard = () => {
                 <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">{t(`dashboard.${stat.nameKey}`)}</p>
                 <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stat.value}</p>
                 <div className="flex items-center flex-wrap gap-1 sm:gap-2">
-                  <span className={`text-xs sm:text-sm font-semibold px-2 py-1 rounded-full ${
-                    stat.changeType === 'increase' 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-red-100 text-red-700'
-                  }`}>
+                  <span className={`text-xs sm:text-sm font-semibold px-2 py-1 rounded-full ${stat.changeType === 'increase'
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-red-100 text-red-700'
+                    }`}>
                     {stat.change}
                   </span>
                   <span className="text-xs text-gray-500">{t('dashboard.fromLastMonth')}</span>
@@ -227,20 +233,18 @@ const Dashboard = () => {
                 </div>
                 <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start w-full sm:w-auto gap-2 sm:gap-1">
                   <div className="flex items-center space-x-2">
-                    <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                      inspection.status === 'Completed' ? 'badge-success' : 
+                    <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${inspection.status === 'Completed' ? 'badge-success' :
                       inspection.status === 'In Progress' ? 'badge-warning' : 'badge-info'
-                    }`}>
-                      {inspection.status === 'Completed' ? t('dashboard.completed') : 
-                       inspection.status === 'In Progress' ? t('dashboard.inProgress') : 
-                       t('dashboard.pending')}
+                      }`}>
+                      {inspection.status === 'Completed' ? t('dashboard.completed') :
+                        inspection.status === 'In Progress' ? t('dashboard.inProgress') :
+                          t('dashboard.pending')}
                     </span>
                     {inspection.rating !== 'Pending' && (
-                      <span className={`px-2 py-1 rounded text-xs font-bold whitespace-nowrap ${
-                        inspection.rating === 'A' ? 'bg-green-100 text-green-800' :
+                      <span className={`px-2 py-1 rounded text-xs font-bold whitespace-nowrap ${inspection.rating === 'A' ? 'bg-green-100 text-green-800' :
                         inspection.rating === 'B+' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
+                          'bg-red-100 text-red-800'
+                        }`}>
                         {inspection.rating}
                       </span>
                     )}
@@ -267,14 +271,13 @@ const Dashboard = () => {
             {alerts.map((alert) => (
               <div key={alert.id} className="group p-3 sm:p-4 rounded-xl border border-gray-100 active:border-orange-200 active:bg-orange-50/30 sm:hover:border-orange-200 sm:hover:bg-orange-50/30 transition-all duration-200">
                 <div className="flex items-start space-x-3 sm:space-x-4">
-                  <div className={`p-2 rounded-xl flex-shrink-0 ${
-                    alert.type === 'warning' ? 'bg-yellow-100' :
+                  <div className={`p-2 rounded-xl flex-shrink-0 ${alert.type === 'warning' ? 'bg-yellow-100' :
                     alert.type === 'info' ? 'bg-blue-100' :
-                    'bg-green-100'
-                  }`}>
+                      'bg-green-100'
+                    }`}>
                     {alert.type === 'warning' ? <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" /> :
-                     alert.type === 'info' ? <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" /> :
-                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />}
+                      alert.type === 'info' ? <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" /> :
+                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 group-hover:text-orange-700 transition-colors break-words">{alert.message}</p>
@@ -302,7 +305,7 @@ const Dashboard = () => {
           {quickActions.map((action, index) => {
             const Icon = action.icon;
             return (
-              <button 
+              <button
                 key={index}
                 onClick={() => navigate(action.href)}
                 className="card-hover group text-left p-4 sm:p-6 bg-white rounded-xl border border-gray-200 active:border-blue-300 active:shadow-lg sm:hover:border-blue-300 sm:hover:shadow-lg transition-all duration-200 touch-manipulation min-h-[120px] sm:min-h-[140px]"
