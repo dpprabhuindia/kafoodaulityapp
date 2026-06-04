@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Settings, 
-  Upload, 
-  Image, 
-  Save, 
-  RefreshCw, 
-  Shield, 
-  User, 
+import {
+  Settings,
+  Upload,
+  Image,
+  Save,
+  RefreshCw,
+  Shield,
+  User,
   Eye,
   X,
   Check,
@@ -58,14 +58,14 @@ const AdminPanel = () => {
       }
 
       setLogoFile(file);
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         setLogoPreview(e.target.result);
       };
       reader.readAsDataURL(file);
-      
+
       setMessage({ type: '', text: '' });
     }
   };
@@ -77,11 +77,11 @@ const AdminPanel = () => {
     }
 
     setIsUploading(true);
-    
+
     try {
       // Simulate upload delay
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // Save logo to localStorage (in production, this would be uploaded to server)
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -91,12 +91,12 @@ const AdminPanel = () => {
         setLogoFile(null);
         setLogoPreview(null);
         setMessage({ type: 'success', text: t('admin.successLogoUpdated') });
-        
+
         // Clear message after 3 seconds
         setTimeout(() => setMessage({ type: '', text: '' }), 3000);
       };
       reader.readAsDataURL(logoFile);
-      
+
     } catch (error) {
       setMessage({ type: 'error', text: t('admin.errorUploadFailed') });
     } finally {
@@ -175,11 +175,10 @@ const AdminPanel = () => {
 
         {/* Message Display */}
         {message.text && (
-          <div className={`mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg flex items-center space-x-2 text-sm sm:text-base ${
-            message.type === 'success' 
-              ? 'bg-green-50 border border-green-200 text-green-700' 
-              : 'bg-red-50 border border-red-200 text-red-700'
-          }`}>
+          <div className={`mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg flex items-center space-x-2 text-sm sm:text-base ${message.type === 'success'
+            ? 'bg-green-50 border border-green-200 text-green-700'
+            : 'bg-red-50 border border-red-200 text-red-700'
+            }`}>
             {message.type === 'success' ? (
               <Check className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
             ) : (
@@ -215,7 +214,7 @@ const AdminPanel = () => {
           {/* Logo Upload Section */}
           <div>
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">{t('admin.uploadNewLogo')}</h3>
-            
+
             {/* File Upload Area */}
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center mb-3 sm:mb-4">
               <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
@@ -253,11 +252,10 @@ const AdminPanel = () => {
                   <button
                     onClick={handleSaveLogo}
                     disabled={isUploading}
-                    className={`flex-1 flex items-center justify-center space-x-2 px-4 py-2.5 sm:py-2 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base ${
-                      isUploading
-                        ? 'bg-gray-400 cursor-not-allowed text-white'
-                        : 'bg-green-600 active:bg-green-700 sm:hover:bg-green-700 text-white'
-                    }`}
+                    className={`flex-1 flex items-center justify-center space-x-2 px-4 py-2.5 sm:py-2 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base ${isUploading
+                      ? 'bg-gray-400 cursor-not-allowed text-white'
+                      : 'bg-green-600 active:bg-green-700 sm:hover:bg-green-700 text-white'
+                      }`}
                   >
                     {isUploading ? (
                       <>
@@ -315,14 +313,14 @@ const AdminPanel = () => {
           <Database className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 flex-shrink-0" />
           <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Photo Storage Management</h2>
         </div>
-        
+
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
           <h3 className="text-base sm:text-lg font-semibold text-purple-900 mb-2">Database Storage Migration</h3>
           <p className="text-purple-800 text-sm sm:text-base mb-4">
             Migrate photos from browser localStorage to the database for better performance and reliability.
             This will move all inspection and facility photos to secure database storage.
           </p>
-          
+
           <button
             onClick={() => setShowPhotoMigration(true)}
             className="bg-purple-600 hover:bg-purple-700 active:bg-purple-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg flex items-center gap-2 transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base"
@@ -352,7 +350,7 @@ const AdminPanel = () => {
           <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 flex-shrink-0" />
           <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{t('admin.systemInfo')}</h2>
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
             <h4 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">{t('admin.portalVersion')}</h4>

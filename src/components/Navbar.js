@@ -38,7 +38,7 @@ const Navbar = ({ currentUser, onLogout }) => {
   ];
 
   // Add admin panel for admin users
-  const navigation = currentUser?.role === 'admin' 
+  const navigation = currentUser?.role === 'admin'
     ? [...baseNavigation, { key: 'AdminPanel', href: '/admin', icon: Settings }]
     : baseNavigation;
 
@@ -52,9 +52,9 @@ const Navbar = ({ currentUser, onLogout }) => {
           {/* Logo and Title */}
           <div className="flex items-center min-w-0 flex-1">
             {customLogo ? (
-              <img 
-                src={customLogo} 
-                alt="Portal Logo" 
+              <img
+                src={customLogo}
+                alt="Portal Logo"
                 className="h-7 sm:h-8 w-auto mr-2 sm:mr-3 object-contain flex-shrink-0"
               />
             ) : (
@@ -94,8 +94,8 @@ const Navbar = ({ currentUser, onLogout }) => {
                 <div className="text-xs text-gray-600 capitalize">{currentUser?.role}</div>
               </div>
             </div>
-            
-            <button 
+
+            <button
               onClick={onLogout}
               className="hidden md:flex items-center px-3 py-2 rounded-lg text-gray-600 hover:text-red-600 hover:bg-red-50 border border-gray-200 hover:border-red-200 transition-all duration-200 touch-manipulation"
             >
@@ -126,11 +126,10 @@ const Navbar = ({ currentUser, onLogout }) => {
                 <Link
                   key={item.key}
                   to={item.href}
-                  className={`flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 touch-manipulation min-h-[44px] ${
-                    isActive(item.href)
-                      ? 'bg-gray-100 text-gray-800 shadow-sm border border-gray-200'
-                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-50'
-                  }`}
+                  className={`flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 touch-manipulation min-h-[44px] ${isActive(item.href)
+                    ? 'bg-gray-100 text-gray-800 shadow-sm border border-gray-200'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-50'
+                    }`}
                 >
                   <Icon className="w-5 h-5 mr-3 flex-shrink-0" />
                   <span className="truncate">{t(`nav.${item.key}`)}</span>
@@ -144,24 +143,23 @@ const Navbar = ({ currentUser, onLogout }) => {
       {/* Mobile Navigation Sidebar */}
       <div className={`md:hidden fixed inset-0 z-50 transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         {/* Backdrop */}
-        <div 
+        <div
           className={`fixed inset-0 bg-black/50 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
           onClick={() => setIsOpen(false)}
           aria-hidden="true"
         />
-        
+
         {/* Sidebar */}
-        <div className={`fixed top-0 right-0 bottom-0 w-72 sm:w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}>
+        <div className={`fixed top-0 right-0 bottom-0 w-72 sm:w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}>
           <div className="flex flex-col h-full">
             {/* Sidebar Header */}
             <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-white">
               <div className="flex items-center min-w-0 flex-1">
                 {customLogo ? (
-                  <img 
-                    src={customLogo} 
-                    alt="Portal Logo" 
+                  <img
+                    src={customLogo}
+                    alt="Portal Logo"
                     className="h-8 w-auto mr-2 object-contain flex-shrink-0"
                   />
                 ) : (
@@ -189,11 +187,10 @@ const Navbar = ({ currentUser, onLogout }) => {
                     <Link
                       key={item.key}
                       to={item.href}
-                      className={`flex items-center px-4 py-3.5 rounded-xl text-base font-medium transition-colors duration-200 touch-manipulation min-h-[48px] ${
-                        isActive(item.href)
-                          ? 'bg-gray-100 text-gray-800'
-                          : 'text-gray-600 active:bg-gray-50 active:text-gray-800'
-                      }`}
+                      className={`flex items-center px-4 py-3.5 rounded-xl text-base font-medium transition-colors duration-200 touch-manipulation min-h-[48px] ${isActive(item.href)
+                        ? 'bg-gray-100 text-gray-800'
+                        : 'text-gray-600 active:bg-gray-50 active:text-gray-800'
+                        }`}
                       onClick={() => setIsOpen(false)}
                     >
                       <Icon className="w-5 h-5 mr-3 flex-shrink-0" />
@@ -208,27 +205,25 @@ const Navbar = ({ currentUser, onLogout }) => {
                 <span className="text-sm font-medium text-gray-700">Language</span>
                 <div className="flex items-center px-2 py-1 bg-white rounded-lg border border-gray-200 text-sm">
                   <button
-                    className={`px-3 py-1.5 rounded min-h-[36px] touch-manipulation transition-colors ${
-                      lang === 'en' 
-                        ? 'bg-gray-100 border border-gray-200 text-gray-800 shadow-sm' 
-                        : 'text-gray-600 active:text-gray-800'
-                    }`}
+                    className={`px-3 py-1.5 rounded min-h-[36px] touch-manipulation transition-colors ${lang === 'en'
+                      ? 'bg-gray-100 border border-gray-200 text-gray-800 shadow-sm'
+                      : 'text-gray-600 active:text-gray-800'
+                      }`}
                     onClick={() => setLang('en')}
                     aria-label="Switch to English"
                   >EN</button>
                   <span className="mx-1.5 text-gray-300">|</span>
                   <button
-                    className={`px-3 py-1.5 rounded min-h-[36px] touch-manipulation transition-colors ${
-                      lang === 'kn' 
-                        ? 'bg-gray-100 border border-gray-200 text-gray-800 shadow-sm' 
-                        : 'text-gray-600 active:text-gray-800'
-                    }`}
+                    className={`px-3 py-1.5 rounded min-h-[36px] touch-manipulation transition-colors ${lang === 'kn'
+                      ? 'bg-gray-100 border border-gray-200 text-gray-800 shadow-sm'
+                      : 'text-gray-600 active:text-gray-800'
+                      }`}
                     onClick={() => setLang('kn')}
                     aria-label="Switch to Kannada"
                   >KN</button>
                 </div>
               </div>
-              
+
               {/* Mobile User Info */}
               <div className="flex items-center px-4 py-3 text-gray-600 bg-gray-50 rounded-lg">
                 <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
@@ -239,8 +234,8 @@ const Navbar = ({ currentUser, onLogout }) => {
                   <div className="text-xs text-gray-600 capitalize">{currentUser?.role}</div>
                 </div>
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => {
                   onLogout();
                   setIsOpen(false);
