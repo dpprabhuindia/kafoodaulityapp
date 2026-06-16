@@ -1,15 +1,17 @@
 {
   "files": {
-    "main.css": "/static/css/main.eb64277a.css",
-    "main.js": "/static/js/main.270cff5a.js",
+    "main.css": "/static/css/main.21bb2edf.css",
+    "main.js": "/static/js/main.1e098deb.js",
     "static/js/493.b203269a.chunk.js": "/static/js/493.b203269a.chunk.js",
+    "static/media/MainPageImage.jpeg": "/static/media/MainPageImage.60cc6fd5f670fce20033.jpeg",
+    "static/media/karnatak-logo.png": "/static/media/karnatak-logo.744af4cc3136d06e43e6.png",
     "index.html": "/index.html",
-    "main.eb64277a.css.map": "/static/css/main.eb64277a.css.map",
-    "main.270cff5a.js.map": "/static/js/main.270cff5a.js.map",
+    "main.21bb2edf.css.map": "/static/css/main.21bb2edf.css.map",
+    "main.1e098deb.js.map": "/static/js/main.1e098deb.js.map",
     "493.b203269a.chunk.js.map": "/static/js/493.b203269a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.eb64277a.css",
-    "static/js/main.270cff5a.js"
+    "static/css/main.21bb2edf.css",
+    "static/js/main.1e098deb.js"
   ]
 }

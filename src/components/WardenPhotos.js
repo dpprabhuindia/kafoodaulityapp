@@ -12,6 +12,41 @@ import {
 import sseService from "../services/sseService";
 import apiService from "../services/api";
 
+const isVideoUrl = (url) => {
+  if (!url) return false;
+  return url.includes('/video/upload/') || 
+         /\.(mp4|webm|ogg|mov|3gp|m4v)($|\?)/i.test(url);
+};
+
+const MediaItem = ({ photo, className, onClick, alt }) => {
+  const isVideo = isVideoUrl(photo.photoUrl);
+  if (isVideo) {
+    return (
+      <div className="relative w-full h-full" onClick={onClick}>
+        <video
+          src={photo.photoUrl}
+          className={className}
+          muted
+          playsInline
+        />
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="bg-black bg-opacity-50 text-white rounded-full p-2 flex items-center justify-center w-10 h-10">
+            <span className="text-sm">▶</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <img
+      src={photo.photoUrl}
+      alt={alt}
+      className={className}
+      onClick={onClick}
+    />
+  );
+};
+
 const WardenPhotos = () => {
   const [photos, setPhotos] = useState([]);
   const [schools, setSchools] = useState([]);
@@ -502,8 +537,8 @@ const WardenPhotos = () => {
                 {group.photos.length === 1 ? (
                   // Single photo - full width
                   <div className="w-full">
-                    <img
-                      src={group.photos[0].photoUrl}
+                    <MediaItem
+                      photo={group.photos[0]}
                       alt={`${group.mealType} meal`}
                       className="w-full h-64 object-cover rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
                       onClick={() =>
@@ -516,8 +551,8 @@ const WardenPhotos = () => {
                   <div className="grid grid-cols-2 gap-2">
                     {group.photos.map((photo, index) => (
                       <div key={photo._id} className="aspect-square">
-                        <img
-                          src={photo.photoUrl}
+                        <MediaItem
+                          photo={photo}
                           alt={`${group.mealType} meal ${index + 1}`}
                           className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
                           onClick={() => openImageViewer(photo, group.photos)}
@@ -529,8 +564,8 @@ const WardenPhotos = () => {
                   // Three photos - one large, two small
                   <div className="grid grid-cols-2 gap-2">
                     <div className="row-span-2">
-                      <img
-                        src={group.photos[0].photoUrl}
+                      <MediaItem
+                        photo={group.photos[0]}
                         alt={`${group.mealType} meal 1`}
                         className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
                         onClick={() =>
@@ -540,8 +575,8 @@ const WardenPhotos = () => {
                     </div>
                     {group.photos.slice(1).map((photo, index) => (
                       <div key={photo._id} className="aspect-square">
-                        <img
-                          src={photo.photoUrl}
+                        <MediaItem
+                          photo={photo}
                           alt={`${group.mealType} meal ${index + 2}`}
                           className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
                           onClick={() => openImageViewer(photo, group.photos)}
@@ -554,8 +589,8 @@ const WardenPhotos = () => {
                   <div className="grid grid-cols-2 gap-2">
                     {group.photos.slice(0, 4).map((photo, index) => (
                       <div key={photo._id} className="aspect-square relative">
-                        <img
-                          src={photo.photoUrl}
+                        <MediaItem
+                          photo={photo}
                           alt={`${group.mealType} meal ${index + 1}`}
                           className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
                           onClick={() => openImageViewer(photo, group.photos)}
@@ -680,14 +715,24 @@ const WardenPhotos = () => {
 
           {/* Main Image */}
           <div className="w-full h-full flex items-center justify-center p-4">
-            <img
-              src={imageViewer.photos[imageViewer.currentIndex]?.photoUrl}
-              alt={`${
-                imageViewer.photos[imageViewer.currentIndex]?.mealType
-              } meal`}
-              className="max-w-full max-h-full object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
+            {imageViewer.photos[imageViewer.currentIndex] && isVideoUrl(imageViewer.photos[imageViewer.currentIndex].photoUrl) ? (
+              <video
+                src={imageViewer.photos[imageViewer.currentIndex].photoUrl}
+                controls
+                autoPlay
+                className="max-w-full max-h-full object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <img
+                src={imageViewer.photos[imageViewer.currentIndex]?.photoUrl}
+                alt={`${
+                  imageViewer.photos[imageViewer.currentIndex]?.mealType
+                } meal`}
+                className="max-w-full max-h-full object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
           </div>
 
           {/* Image Info Overlay */}
@@ -748,11 +793,19 @@ const WardenPhotos = () => {
                 </button>
               </div>
 
-              <img
-                src={selectedPhoto.photoUrl}
-                alt={`${selectedPhoto.mealType} meal`}
-                className="w-full h-64 object-cover rounded-lg mb-4"
-              />
+              {isVideoUrl(selectedPhoto.photoUrl) ? (
+                <video
+                  src={selectedPhoto.photoUrl}
+                  controls
+                  className="w-full h-64 object-contain rounded-lg mb-4 bg-black"
+                />
+              ) : (
+                <img
+                  src={selectedPhoto.photoUrl}
+                  alt={`${selectedPhoto.mealType} meal`}
+                  className="w-full h-64 object-cover rounded-lg mb-4"
+                />
+              )}
 
               <div className="space-y-3">
                 <div className="flex justify-between">

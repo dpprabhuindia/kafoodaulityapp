@@ -11,6 +11,12 @@ const formatTime = (value) =>
     month: "short",
   });
 
+const isVideoUrl = (url) => {
+  if (!url) return false;
+  return url.includes('/video/upload/') || 
+         /\.(mp4|webm|ogg|mov|3gp|m4v)($|\?)/i.test(url);
+};
+
 const EmptyState = ({ title, message }) => (
   <div className="flex flex-col items-center justify-center text-center py-6 text-gray-500 space-y-2">
     <Image className="w-10 h-10 opacity-70" />
@@ -371,12 +377,28 @@ export default function SchoolWardenPhotoFeed({
               } cursor-pointer active:scale-95 transition-transform touch-manipulation`}
               onClick={() => setViewer({ isOpen: true, index: idx })}
             >
-              <img
-                src={photo.photoUrl}
-                alt={photo.mealType || "Meal"}
-                className={`w-full ${isMobile ? 'h-36' : 'h-32'} object-cover`}
-                loading="lazy"
-              />
+              {isVideoUrl(photo.photoUrl) ? (
+                <div className="relative w-full h-full">
+                  <video
+                    src={photo.photoUrl}
+                    className={`w-full ${isMobile ? 'h-36' : 'h-32'} object-cover`}
+                    muted
+                    playsInline
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="bg-black/50 text-white rounded-full p-1.5 flex items-center justify-center">
+                      <span className="text-xs">▶</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <img
+                  src={photo.photoUrl}
+                  alt={photo.mealType || "Meal"}
+                  className={`w-full ${isMobile ? 'h-36' : 'h-32'} object-cover`}
+                  loading="lazy"
+                />
+              )}
               {/* Delete button (top-right), minimal visual change */}
               <button
                 type="button"
@@ -474,12 +496,21 @@ export default function SchoolWardenPhotoFeed({
 
           {/* Photo display area with swipe support */}
           <div className="flex-1 flex items-center justify-center px-2 sm:px-4 pb-4 sm:pb-6 overflow-y-auto relative">
-            <img
-              src={photos[viewer.index].photoUrl}
-              alt={photos[viewer.index].mealType || "Meal"}
-              className={`${isMobile ? 'max-h-[85vh]' : 'max-h-[80vh]'} max-w-full object-contain ${isMobile ? 'rounded-lg' : 'rounded-2xl'} shadow-2xl select-none`}
-              draggable={false}
-            />
+            {isVideoUrl(photos[viewer.index].photoUrl) ? (
+              <video
+                src={photos[viewer.index].photoUrl}
+                controls
+                autoPlay
+                className={`${isMobile ? 'max-h-[85vh]' : 'max-h-[80vh]'} max-w-full object-contain ${isMobile ? 'rounded-lg' : 'rounded-2xl'} shadow-2xl`}
+              />
+            ) : (
+              <img
+                src={photos[viewer.index].photoUrl}
+                alt={photos[viewer.index].mealType || "Meal"}
+                className={`${isMobile ? 'max-h-[85vh]' : 'max-h-[80vh]'} max-w-full object-contain ${isMobile ? 'rounded-lg' : 'rounded-2xl'} shadow-2xl select-none`}
+                draggable={false}
+              />
+            )}
             
             {/* Mobile swipe indicators */}
             {isMobile && photos.length > 1 && (
