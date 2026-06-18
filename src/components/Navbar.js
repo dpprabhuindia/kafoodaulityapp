@@ -31,7 +31,7 @@ const Navbar = ({ currentUser, onLogout }) => {
   const baseNavigation = [
     { key: 'Dashboard', href: '/', icon: BarChart3 },
     { key: 'NewInspection', href: '/audit', icon: FileText },
-    { key: 'Schools', href: '/establishments', icon: Store },
+    { key: 'Hostels', href: '/establishments', icon: Store },
     { key: 'WardenPhotos', href: '/warden-photos', icon: Camera },
     { key: 'Reports', href: '/reports', icon: TrendingUp },
     { key: 'Profile', href: '/profile', icon: User },

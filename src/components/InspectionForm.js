@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { 
-  Plus, 
-  MapPin, 
-  Phone, 
-  Mail, 
+import {
+  Plus,
+  MapPin,
+  Phone,
+  Mail,
   CheckCircle,
   Camera,
   FileText,
@@ -119,32 +119,32 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
   const handlePhotoUpload = async (event) => {
     const files = Array.from(event.target.files);
     const inputElement = event.target;
-    
+
     if (!selectedSchool && !showAddSchool) {
       alert(t('inspection.alerts.selectSchoolFirst'));
       // Reset input so it can be used again
       inputElement.value = '';
       return;
     }
-    
+
     if (files.length === 0) {
       return;
     }
-    
+
     setUploadingPhotos(true);
-    
+
     try {
-      // Ensure directory exists for this school and inspection
+      // Ensure directory exists for this hostel and inspection
       const schoolId = selectedSchool || 'new_school';
       ensureDirectoryExists(schoolId, inspectionId);
-      
+
       // Process each file
       const photoPromises = files.map(async (file) => {
         try {
           const savedPhoto = await uploadPhoto(
-            file, 
-            schoolId, 
-            inspectionId, 
+            file,
+            schoolId,
+            inspectionId,
             'inspection',
             null,
             inspectionData.inspectorName || 'Inspector',
@@ -166,19 +166,19 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
           return null;
         }
       });
-      
+
       const uploadedPhotos = await Promise.all(photoPromises);
       const successfulUploads = uploadedPhotos.filter(photo => photo !== null);
-      
+
       setInspectionData(prev => ({
         ...prev,
         photos: [...prev.photos, ...successfulUploads]
       }));
-      
+
       if (successfulUploads.length < files.length) {
         alert(`${files.length - successfulUploads.length} ${t('inspection.alerts.photoUploadFailed')}`);
       }
-      
+
     } catch (error) {
       console.error('Error during photo upload:', error);
       alert(t('inspection.alerts.photoUploadError'));
@@ -191,21 +191,21 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
 
   const removePhoto = async (index) => {
     const photoToRemove = inspectionData.photos[index];
-    
+
     // Delete from database if it has an ID (was successfully uploaded)
     if (photoToRemove && photoToRemove.id) {
       try {
         await deletePhoto(
-          photoToRemove.id, 
-          selectedSchool || 'new_school', 
-          inspectionId, 
+          photoToRemove.id,
+          selectedSchool || 'new_school',
+          inspectionId,
           'inspection'
         );
       } catch (error) {
         console.error('Error deleting photo from database:', error);
       }
     }
-    
+
     // Remove from state
     setInspectionData(prev => ({
       ...prev,
@@ -226,7 +226,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
       alert(t('inspection.alerts.selectSchoolOrAdd'));
       return;
     }
-    
+
     // Prepare inspection data with photo paths
     const inspectionSubmissionData = {
       ...inspectionData,
@@ -243,17 +243,17 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
         uploadDate: photo.uploadDate
       }))
     };
-    
+
     // In a real app, this would save the inspection data to database
     console.log('Inspection Data:', inspectionSubmissionData);
     console.log('Selected School:', selectedSchool);
     console.log('Photos stored in local paths:', inspectionSubmissionData.photos.map(p => p.localPath));
-    
+
     // Save to localStorage for demo purposes
     const existingInspections = JSON.parse(localStorage.getItem('inspections') || '[]');
     existingInspections.push(inspectionSubmissionData);
     localStorage.setItem('inspections', JSON.stringify(existingInspections));
-    
+
     alert(`${t('inspection.alerts.inspectionSaved')}\n\nPhotos stored in database: ${inspectionSubmissionData.photos.length} photos`);
     onClose();
   };
@@ -275,10 +275,10 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
     return '';
   }, [selectedSchoolData, selectedSchool, preSelectedSchoolId]);
 
-  const containerClasses = isModal 
+  const containerClasses = isModal
     ? "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4"
     : "min-h-screen flex items-center justify-center";
-    
+
   const formClasses = isModal
     ? "bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
     : "bg-white rounded-xl shadow-2xl max-w-4xl w-full";
@@ -324,7 +324,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                       >
                         <option value="">
                           {schoolsLoading
-                            ? t('inspection.loadingSchools') || 'Loading schools...'
+                            ? t('inspection.loadingSchools') || 'Loading Hostels...'
                             : t('inspection.selectSchoolPlaceholder')}
                         </option>
                         {existingSchools.map((school) => (
@@ -408,7 +408,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     <input
                       type="text"
                       value={newSchool.name}
-                      onChange={(e) => setNewSchool({...newSchool, name: e.target.value})}
+                      onChange={(e) => setNewSchool({ ...newSchool, name: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                       placeholder={t('inspection.placeholderSchoolName')}
                     />
@@ -419,7 +419,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     </label>
                     <select
                       value={newSchool.type}
-                      onChange={(e) => setNewSchool({...newSchool, type: e.target.value})}
+                      onChange={(e) => setNewSchool({ ...newSchool, type: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                     >
                       <option value="Government School">{t('inspection.schoolTypes.government')}</option>
@@ -433,7 +433,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     <input
                       type="text"
                       value={newSchool.location}
-                      onChange={(e) => setNewSchool({...newSchool, location: e.target.value})}
+                      onChange={(e) => setNewSchool({ ...newSchool, location: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                       placeholder={t('inspection.placeholderLocation')}
                     />
@@ -445,7 +445,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     <input
                       type="tel"
                       value={newSchool.phone}
-                      onChange={(e) => setNewSchool({...newSchool, phone: e.target.value})}
+                      onChange={(e) => setNewSchool({ ...newSchool, phone: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                       placeholder="+91 XXX XXX XXXX"
                     />
@@ -457,7 +457,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     <input
                       type="email"
                       value={newSchool.email}
-                      onChange={(e) => setNewSchool({...newSchool, email: e.target.value})}
+                      onChange={(e) => setNewSchool({ ...newSchool, email: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                       placeholder="school@karnataka.gov.in"
                     />
@@ -469,7 +469,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     <input
                       type="text"
                       value={newSchool.principalName}
-                      onChange={(e) => setNewSchool({...newSchool, principalName: e.target.value})}
+                      onChange={(e) => setNewSchool({ ...newSchool, principalName: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                       placeholder={t('inspection.principalName')}
                     />
@@ -481,7 +481,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     <input
                       type="number"
                       value={newSchool.studentCount}
-                      onChange={(e) => setNewSchool({...newSchool, studentCount: e.target.value})}
+                      onChange={(e) => setNewSchool({ ...newSchool, studentCount: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                       placeholder={t('inspection.studentCount')}
                     />
@@ -492,7 +492,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     </label>
                     <select
                       value={newSchool.category}
-                      onChange={(e) => setNewSchool({...newSchool, category: e.target.value})}
+                      onChange={(e) => setNewSchool({ ...newSchool, category: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                     >
                       <option value="Primary School">{t('inspection.categories.primary')}</option>
@@ -507,7 +507,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                     </label>
                     <select
                       value={newSchool.level}
-                      onChange={(e) => setNewSchool({...newSchool, level: e.target.value})}
+                      onChange={(e) => setNewSchool({ ...newSchool, level: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                     >
                       <option value="State Level">{t('inspection.levels.state')}</option>
@@ -552,7 +552,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                   <input
                     type="text"
                     value={inspectionData.inspectorName}
-                    onChange={(e) => setInspectionData({...inspectionData, inspectorName: e.target.value})}
+                    onChange={(e) => setInspectionData({ ...inspectionData, inspectorName: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                     placeholder={t('inspection.placeholderInspectorName')}
                   />
@@ -565,7 +565,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                   <input
                     type="date"
                     value={inspectionData.inspectionDate}
-                    onChange={(e) => setInspectionData({...inspectionData, inspectionDate: e.target.value})}
+                    onChange={(e) => setInspectionData({ ...inspectionData, inspectionDate: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                   />
                 </div>
@@ -576,7 +576,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                   </label>
                   <select
                     value={inspectionData.inspectionType}
-                    onChange={(e) => setInspectionData({...inspectionData, inspectionType: e.target.value})}
+                    onChange={(e) => setInspectionData({ ...inspectionData, inspectionType: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                   >
                     <option value="routine">{t('inspection.inspectionTypes.routine')}</option>
@@ -592,7 +592,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                   </label>
                   <select
                     value={inspectionData.overallRating}
-                    onChange={(e) => setInspectionData({...inspectionData, overallRating: e.target.value})}
+                    onChange={(e) => setInspectionData({ ...inspectionData, overallRating: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                   >
                     <option value="">{t('inspection.selectRatingPlaceholder')}</option>
@@ -611,7 +611,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                 </label>
                 <textarea
                   value={inspectionData.findings}
-                  onChange={(e) => setInspectionData({...inspectionData, findings: e.target.value})}
+                  onChange={(e) => setInspectionData({ ...inspectionData, findings: e.target.value })}
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                   placeholder={t('inspection.placeholderFindings')}
@@ -624,7 +624,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                 </label>
                 <textarea
                   value={inspectionData.violations}
-                  onChange={(e) => setInspectionData({...inspectionData, violations: e.target.value})}
+                  onChange={(e) => setInspectionData({ ...inspectionData, violations: e.target.value })}
                   rows={3}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                   placeholder={t('inspection.placeholderViolations')}
@@ -637,7 +637,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                 </label>
                 <textarea
                   value={inspectionData.recommendations}
-                  onChange={(e) => setInspectionData({...inspectionData, recommendations: e.target.value})}
+                  onChange={(e) => setInspectionData({ ...inspectionData, recommendations: e.target.value })}
                   rows={3}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
                   placeholder={t('inspection.placeholderRecommendations')}
@@ -655,7 +655,7 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                   <p className="text-xs text-gray-500 mb-3 sm:mb-4 break-words px-2">
                     {t('inspection.photosStoredIn')}: inspectPhotos/school_{selectedSchool || 'new'}/inspection_{inspectionId.split('_')[1]}/
                   </p>
-                  
+
                   {/* Mobile: Two separate buttons for camera and gallery */}
                   {isMobile ? (
                     <div className="flex flex-row flex-wrap gap-2 sm:gap-3 w-full mx-auto">
@@ -681,32 +681,30 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                         className="hidden"
                         disabled={uploadingPhotos}
                       />
-                      
+
                       {/* Take Photo Button */}
-                      <button 
+                      <button
                         type="button"
                         onClick={handleTakePhoto}
                         disabled={uploadingPhotos}
-                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm font-medium sm:flex-1 grow min-w-[140px] ${
-                          uploadingPhotos 
-                            ? 'bg-gray-400 cursor-not-allowed text-white' 
-                            : 'bg-green-600 active:bg-green-700 text-white shadow-md'
-                        }`}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm font-medium sm:flex-1 grow min-w-[140px] ${uploadingPhotos
+                          ? 'bg-gray-400 cursor-not-allowed text-white'
+                          : 'bg-green-600 active:bg-green-700 text-white shadow-md'
+                          }`}
                       >
                         <Camera className="w-5 h-5 flex-shrink-0" />
                         <span className="whitespace-nowrap">Take Photo</span>
                       </button>
-                      
+
                       {/* Upload from Gallery Button */}
-                      <button 
+                      <button
                         type="button"
                         onClick={handleUploadFromGallery}
                         disabled={uploadingPhotos}
-                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm font-medium sm:flex-1 grow min-w-[140px] ${
-                          uploadingPhotos 
-                            ? 'bg-gray-400 cursor-not-allowed text-white' 
-                            : 'bg-blue-600 active:bg-blue-700 text-white shadow-md'
-                        }`}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm font-medium sm:flex-1 grow min-w-[140px] ${uploadingPhotos
+                          ? 'bg-gray-400 cursor-not-allowed text-white'
+                          : 'bg-blue-600 active:bg-blue-700 text-white shadow-md'
+                          }`}
                       >
                         <Upload className="w-5 h-5 flex-shrink-0" />
                         <span className="whitespace-nowrap">Upload</span>
@@ -715,31 +713,30 @@ const InspectionForm = ({ onClose, preSelectedSchoolId = null, isModal = true })
                   ) : (
                     /* Desktop: Single button */
                     <>
-                  <input
-                    type="file"
-                    id="photo-upload"
-                    multiple
-                    accept="image/*"
-                    onChange={handlePhotoUpload}
-                    className="hidden"
-                    disabled={uploadingPhotos}
-                  />
-                  <button 
-                    type="button"
-                    onClick={() => document.getElementById('photo-upload').click()}
-                    disabled={uploadingPhotos}
-                    className={`px-4 sm:px-6 py-3 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base ${
-                      uploadingPhotos 
-                        ? 'bg-gray-400 cursor-not-allowed text-white' 
-                        : 'bg-blue-600 active:bg-blue-700 sm:hover:bg-blue-700 text-white'
-                    }`}
-                  >
-                    {uploadingPhotos ? t('inspection.uploading') : t('inspection.chooseFiles')}
-                  </button>
+                      <input
+                        type="file"
+                        id="photo-upload"
+                        multiple
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                        disabled={uploadingPhotos}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('photo-upload').click()}
+                        disabled={uploadingPhotos}
+                        className={`px-4 sm:px-6 py-3 rounded-lg transition-colors min-h-[44px] touch-manipulation text-sm sm:text-base ${uploadingPhotos
+                          ? 'bg-gray-400 cursor-not-allowed text-white'
+                          : 'bg-blue-600 active:bg-blue-700 sm:hover:bg-blue-700 text-white'
+                          }`}
+                      >
+                        {uploadingPhotos ? t('inspection.uploading') : t('inspection.chooseFiles')}
+                      </button>
                     </>
                   )}
                 </div>
-                
+
                 {/* Display uploaded photos */}
                 {inspectionData.photos.length > 0 && (
                   <div className="mt-4">

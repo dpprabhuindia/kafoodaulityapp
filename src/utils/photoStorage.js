@@ -201,7 +201,7 @@ export const getAllSchoolPhotos = (schoolId) => {
     console.log('Loading photos for school:', schoolId);
     console.log('Total photos in unified storage:', allPhotos.length);
     
-    // Filter photos for this school
+    // Filter photos for this hostel
     const schoolPhotos = allPhotos.filter(photo => 
       photo.schoolId === schoolId.toString()
     );

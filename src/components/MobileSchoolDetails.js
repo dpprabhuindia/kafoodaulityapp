@@ -401,7 +401,7 @@ const MobileSchoolDetails = ({
       </header>
 
       <main className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-4 pb-6">
-        {/* School Information Card */}
+        {/* Hostel Information Card */}
         <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
           {/* Header with badges */}
           <div className="px-4 pt-4 pb-3">
@@ -425,10 +425,10 @@ const MobileSchoolDetails = ({
             </div>
 
             <h2 className="text-lg font-semibold text-gray-900 mb-1">
-              School Information
+              Hostel Information
             </h2>
 
-            {/* School Type and Category */}
+            {/* Hostel Type and Category */}
             <div className="flex items-center gap-3 mb-1">
               <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-gray-100">
                 <ShieldCheck className="w-3 h-3 text-gray-600" />

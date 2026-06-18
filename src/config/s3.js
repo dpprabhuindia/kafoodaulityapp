@@ -82,7 +82,7 @@ const deleteFromS3 = async (key) => {
 
 /**
  * Generate S3 key (path) for a photo
- * @param {string} schoolId - School ID
+ * @param {string} schoolId - Hostel ID
  * @param {string} photoType - Type of photo (inspection, facility, warden)
  * @param {string} filename - Filename
  * @param {string} inspectionId - Optional inspection ID

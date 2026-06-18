@@ -257,8 +257,8 @@ export default function SchoolWardenPhotoFeed({
     return (
       <div className="bg-white border rounded-xl p-4 sm:p-5">
         <EmptyState
-          title="Select a school to view uploads"
-          message="Photos from the assigned warden will appear here once a school is chosen."
+          title="Select a hostel to view uploads"
+          message="Photos from the assigned warden will appear here once a hostel is chosen."
         />
       </div>
     );
@@ -363,7 +363,7 @@ export default function SchoolWardenPhotoFeed({
           <div className={isMobile ? "w-full" : "col-span-full w-full"}>
             <EmptyState
               title="No uploads yet"
-              message="Once the warden submits photos for this school, they will show here."
+              message="Once the warden submits photos for this hostel, they will show here."
             />
           </div>
         )}

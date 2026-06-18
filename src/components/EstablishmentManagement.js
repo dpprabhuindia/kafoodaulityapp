@@ -64,8 +64,8 @@ const EstablishmentManagement = () => {
     () => [
       {
         id: 1,
-        name: "Government High School Bangalore North",
-        type: "Government School",
+        name: "Government Hostel Bangalore North",
+        type: "Government Hostel",
         owner: "Karnataka Education Department",
         location: "Bangalore North, Karnataka",
         phone: "+91 80 2234 5678",
@@ -97,8 +97,8 @@ const EstablishmentManagement = () => {
       },
       {
         id: 2,
-        name: "Government Primary School Mysore",
-        type: "Government School",
+        name: "Government Hostel Mysore",
+        type: "Government Hostel",
         owner: "Karnataka Education Department",
         location: "Mysore, Karnataka",
         phone: "+91 821 2345 678",
@@ -123,8 +123,8 @@ const EstablishmentManagement = () => {
       },
       {
         id: 3,
-        name: "Government Higher Secondary School Hubli",
-        type: "Government School",
+        name: "Government Hostel Hubli",
+        type: "Government Hostel",
         owner: "Karnataka Education Department",
         location: "Hubli, Karnataka",
         phone: "+91 836 2456 789",
@@ -140,8 +140,8 @@ const EstablishmentManagement = () => {
       },
       {
         id: 4,
-        name: "Government Primary School Mangalore",
-        type: "Government School",
+        name: "Government Hostel Mangalore",
+        type: "Government Hostel",
         owner: "Karnataka Education Department",
         location: "Mangalore, Karnataka",
         phone: "+91 824 2567 890",
@@ -181,7 +181,7 @@ const EstablishmentManagement = () => {
     // You could update the local state here if needed
     alert(
       t("establishments.alerts.updatedSuccess") ||
-        "School information updated successfully!"
+      "School information updated successfully!"
     );
   };
 
@@ -304,7 +304,7 @@ const EstablishmentManagement = () => {
 
     const { eventType, schoolId } = lastUpdate;
 
-    // If we're currently viewing this school, refresh its photos
+    // If we're currently viewing this hostel, refresh its photos
     if (
       selectedSchool.id === schoolId ||
       selectedSchool.id === parseInt(schoolId)
@@ -363,7 +363,7 @@ const EstablishmentManagement = () => {
     if (!selectedSchool) {
       alert(
         t("establishments.alerts.noSchoolSelected") ||
-          "No school selected for photo upload."
+        "No school selected for photo upload."
       );
       return;
     }
@@ -382,9 +382,8 @@ const EstablishmentManagement = () => {
             "facility",
             selectedFacilityType,
             "Facility Manager",
-            `${
-              selectedFacilityType.charAt(0).toUpperCase() +
-              selectedFacilityType.slice(1)
+            `${selectedFacilityType.charAt(0).toUpperCase() +
+            selectedFacilityType.slice(1)
             } Facility - ${file.name}`
           );
           return {
@@ -420,8 +419,7 @@ const EstablishmentManagement = () => {
 
       if (successfulUploads.length < files.length) {
         alert(
-          `${
-            files.length - successfulUploads.length
+          `${files.length - successfulUploads.length
           } photos failed to upload. Please try again.`
         );
       } else {
@@ -732,27 +730,25 @@ const EstablishmentManagement = () => {
           <div className="mt-4 text-white text-center">
             <div className="flex items-center justify-center mb-2">
               <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  photo.inspectionId
-                    ? "bg-blue-600 text-white"
-                    : photo.facilityType
+                className={`px-3 py-1 rounded-full text-sm font-medium ${photo.inspectionId
+                  ? "bg-blue-600 text-white"
+                  : photo.facilityType
                     ? "bg-green-600 text-white"
                     : "bg-gray-600 text-white"
-                }`}
+                  }`}
               >
                 {photo.inspectionId
                   ? `${t("establishments.gallery.badgeInspection")} ${t(
-                      "establishments.gallery.inspectionPhotos"
-                    )}`
+                    "establishments.gallery.inspectionPhotos"
+                  )}`
                   : photo.facilityType
-                  ? `${
-                      photo.facilityType === "kitchen"
-                        ? "🍳"
-                        : photo.facilityType === "storeroom"
+                    ? `${photo.facilityType === "kitchen"
+                      ? "🍳"
+                      : photo.facilityType === "storeroom"
                         ? "📦"
                         : "🏢"
                     } ${t("establishments.gallery.facilityPhotos")}`
-                  : `${t("establishments.gallery.badgeArchive")} ${t(
+                    : `${t("establishments.gallery.badgeArchive")} ${t(
                       "establishments.gallery.archivePhotos"
                     )}`}
               </span>
@@ -866,7 +862,7 @@ const EstablishmentManagement = () => {
 
         {/* School Details */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* School Information */}
+          {/* Hostel Information */}
           <div className="lg:col-span-1">
             <div className="glass-card p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
@@ -882,13 +878,12 @@ const EstablishmentManagement = () => {
                     <p className="text-gray-600">{selectedSchool.category}</p>
                     {selectedSchool.level && (
                       <span
-                        className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium ${
-                          selectedSchool.level === "State Level"
-                            ? "bg-purple-100 text-purple-800"
-                            : selectedSchool.level === "District Level"
+                        className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium ${selectedSchool.level === "State Level"
+                          ? "bg-purple-100 text-purple-800"
+                          : selectedSchool.level === "District Level"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-green-100 text-green-800"
-                        }`}
+                          }`}
                       >
                         {selectedSchool.level}
                       </span>
@@ -999,11 +994,10 @@ const EstablishmentManagement = () => {
                     document.getElementById("facility-photo-upload").click()
                   }
                   disabled={uploadingFacilityPhotos}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    uploadingFacilityPhotos
-                      ? "bg-gray-400 cursor-not-allowed text-white"
-                      : "bg-green-600 hover:bg-green-700 text-white"
-                  }`}
+                  className={`px-4 py-2 rounded-lg transition-colors ${uploadingFacilityPhotos
+                    ? "bg-gray-400 cursor-not-allowed text-white"
+                    : "bg-green-600 hover:bg-green-700 text-white"
+                    }`}
                 >
                   {uploadingFacilityPhotos
                     ? t("inspection.uploading")
@@ -1058,17 +1052,15 @@ const EstablishmentManagement = () => {
                 <button
                   onClick={handleManualRefresh}
                   disabled={refreshingPhotos}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                    refreshingPhotos
-                      ? "text-gray-400 cursor-not-allowed"
-                      : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
-                  }`}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${refreshingPhotos
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+                    }`}
                   title="Refresh photos"
                 >
                   <RefreshCw
-                    className={`w-4 h-4 ${
-                      refreshingPhotos ? "animate-spin" : ""
-                    }`}
+                    className={`w-4 h-4 ${refreshingPhotos ? "animate-spin" : ""
+                      }`}
                   />
                   Refresh
                 </button>
@@ -1152,28 +1144,25 @@ const EstablishmentManagement = () => {
                         {/* Photo Type Badge */}
                         <div className="absolute top-2 left-2 z-10">
                           <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              photo.inspectionId
-                                ? "bg-blue-100 text-blue-800"
-                                : photo.facilityType
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${photo.inspectionId
+                              ? "bg-blue-100 text-blue-800"
+                              : photo.facilityType
                                 ? "bg-green-100 text-green-800"
                                 : "bg-gray-100 text-gray-800"
-                            }`}
+                              }`}
                           >
                             {photo.inspectionId
                               ? "🔍 Inspection"
                               : photo.facilityType
-                              ? `${
-                                  photo.facilityType === "kitchen"
-                                    ? "🍳"
-                                    : photo.facilityType === "storeroom"
+                                ? `${photo.facilityType === "kitchen"
+                                  ? "🍳"
+                                  : photo.facilityType === "storeroom"
                                     ? "📦"
                                     : "🏢"
-                                } ${
-                                  photo.facilityType.charAt(0).toUpperCase() +
-                                  photo.facilityType.slice(1)
+                                } ${photo.facilityType.charAt(0).toUpperCase() +
+                                photo.facilityType.slice(1)
                                 }`
-                              : "📁 Archive"}
+                                : "📁 Archive"}
                           </span>
                         </div>
 
@@ -1308,7 +1297,7 @@ const EstablishmentManagement = () => {
               placeholder={t("establishments.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="flex gap-2">
@@ -1345,8 +1334,8 @@ const EstablishmentManagement = () => {
             level === "State Level"
               ? t("inspection.levels.state")
               : level === "District Level"
-              ? t("inspection.levels.district")
-              : t("inspection.levels.taluk");
+                ? t("inspection.levels.district")
+                : t("inspection.levels.taluk");
           const ratingOrder = { A: 1, "B+": 2, B: 3, C: 4, D: 5 };
           const items = filteredEstablishments
             .filter((e) => e.level === level)
@@ -1382,13 +1371,12 @@ const EstablishmentManagement = () => {
                           </p>
                           {establishment.level && (
                             <span
-                              className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium ${
-                                establishment.level === "State Level"
-                                  ? "bg-purple-100 text-purple-800"
-                                  : establishment.level === "District Level"
+                              className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium ${establishment.level === "State Level"
+                                ? "bg-purple-100 text-purple-800"
+                                : establishment.level === "District Level"
                                   ? "bg-blue-100 text-blue-800"
                                   : "bg-green-100 text-green-800"
-                              }`}
+                                }`}
                             >
                               {label}
                             </span>
@@ -1450,11 +1438,10 @@ const EstablishmentManagement = () => {
                           {t("establishments.card.violations")}
                         </span>
                         <span
-                          className={`font-medium ${
-                            establishment.violations > 0
-                              ? "text-red-600"
-                              : "text-green-600"
-                          }`}
+                          className={`font-medium ${establishment.violations > 0
+                            ? "text-red-600"
+                            : "text-green-600"
+                            }`}
                         >
                           {establishment.violations}
                         </span>

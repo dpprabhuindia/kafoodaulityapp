@@ -308,25 +308,22 @@ const AuditForm = () => {
             </span>
           </div>
         </div>
-        
+
         {/* Desktop: Full progress bar */}
         <div className="hidden sm:flex items-center justify-between overflow-x-auto pb-2">
           {sections.map((section, index) => (
             <div key={index} className="flex items-center flex-shrink-0">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                index <= currentSection ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'
-              }`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${index <= currentSection ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'
+                }`}>
                 {index + 1}
               </div>
-              <span className={`ml-2 text-sm font-medium whitespace-nowrap ${
-                index <= currentSection ? 'text-primary-600' : 'text-gray-500'
-              }`}>
+              <span className={`ml-2 text-sm font-medium whitespace-nowrap ${index <= currentSection ? 'text-primary-600' : 'text-gray-500'
+                }`}>
                 {section.title}
               </span>
               {index < sections.length - 1 && (
-                <div className={`w-8 sm:w-12 h-1 mx-2 sm:mx-4 flex-shrink-0 ${
-                  index < currentSection ? 'bg-primary-600' : 'bg-gray-200'
-                }`} />
+                <div className={`w-8 sm:w-12 h-1 mx-2 sm:mx-4 flex-shrink-0 ${index < currentSection ? 'bg-primary-600' : 'bg-gray-200'
+                  }`} />
               )}
             </div>
           ))}
@@ -341,7 +338,7 @@ const AuditForm = () => {
               <User className="w-5 h-5 mr-2 flex-shrink-0" />
               <span className="break-words">Government School Details</span>
             </h2>
-            
+
             <div className="space-y-4 sm:space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
@@ -361,10 +358,10 @@ const AuditForm = () => {
                     <option value="licensing">Licensing Inspection</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select School
+                    Select Hostel
                   </label>
                   <div className="space-y-2">
                     <input
@@ -375,14 +372,14 @@ const AuditForm = () => {
                       placeholder="Search by school name, district, or license"
                     />
                     <select
-                      name="schoolId"
+                      name="hostelId"
                       value={formData.schoolId}
                       onChange={(e) => handleSchoolSelect(e.target.value)}
                       className="input text-base"
                       disabled={schoolsLoading}
                     >
                       <option value="">
-                        {schoolsLoading ? 'Loading schools...' : 'Select a school'}
+                        {schoolsLoading ? 'Loading Hostels...' : 'Select a hostel'}
                       </option>
                       {filteredSchools.map((school) => (
                         <option
@@ -409,7 +406,7 @@ const AuditForm = () => {
                       <div>
                         <p className="text-sm font-semibold text-gray-900">Recent Inspection Photos</p>
                         <p className="text-xs text-gray-500">
-                          Inspection photos already uploaded for this school (Amazon S3)
+                          Inspection photos already uploaded for this hostel (Amazon S3)
                         </p>
                       </div>
                     </div>
@@ -432,7 +429,7 @@ const AuditForm = () => {
                     <p className="text-sm text-red-600">{schoolPhotosError}</p>
                   ) : inspectionPhotos.length === 0 ? (
                     <p className="text-sm text-gray-600">
-                      This school does not have inspection photos yet.
+                      This Hostel does not have inspection photos yet.
                     </p>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -446,7 +443,7 @@ const AuditForm = () => {
                             {photoUrl ? (
                               <img
                                 src={photoUrl}
-                                alt={photo.caption || photo.originalName || 'School photo'}
+                                alt={photo.caption || photo.originalName || 'Hostel photo'}
                                 className="w-full h-40 object-cover"
                               />
                             ) : (
@@ -488,7 +485,7 @@ const AuditForm = () => {
               <div className="grid grid-cols-1 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    School Name (auto-filled)
+                    Hostel Name (auto-filled)
                   </label>
                   <input
                     type="text"
@@ -507,7 +504,7 @@ const AuditForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    School Type
+                    Hostel Type
                   </label>
                   <select
                     name="schoolType"
@@ -516,13 +513,13 @@ const AuditForm = () => {
                     className="input text-base"
                   >
                     <option value="">Select type</option>
-                    <option value="primary">Government Primary School</option>
-                    <option value="secondary">Government High School</option>
-                    <option value="higher_secondary">Government Higher Secondary School</option>
-                    <option value="residential">Government Residential School</option>
+                    <option value="primary">Government Hostel</option>
+                    <option value="secondary">Government Hostel</option>
+                    <option value="higher_secondary">Government Hostel</option>
+                    <option value="residential">Government Hostel</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     License Number
@@ -552,7 +549,7 @@ const AuditForm = () => {
                     placeholder="Enter location"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     District
@@ -566,7 +563,7 @@ const AuditForm = () => {
                     placeholder="Enter district"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     State
@@ -595,7 +592,7 @@ const AuditForm = () => {
                     className="input text-base"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Inspector Name
@@ -609,7 +606,7 @@ const AuditForm = () => {
                     placeholder="Enter inspector name"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Owner Name
@@ -635,7 +632,7 @@ const AuditForm = () => {
               <FileText className="w-5 h-5 mr-2 flex-shrink-0" />
               <span className="break-words">Scheme Details</span>
             </h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -726,7 +723,7 @@ const AuditForm = () => {
               <Calendar className="w-5 h-5 mr-2 flex-shrink-0" />
               <span className="break-words">Financial Information</span>
             </h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -788,7 +785,7 @@ const AuditForm = () => {
               <MapPin className="w-5 h-5 mr-2 flex-shrink-0" />
               <span className="break-words">Audit Findings</span>
             </h2>
-            
+
             <div className="space-y-4 sm:space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -830,7 +827,7 @@ const AuditForm = () => {
               <Upload className="w-5 h-5 mr-2 flex-shrink-0" />
               <span className="break-words">Documents & Evidence</span>
             </h2>
-            
+
             <div className="space-y-4 sm:space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -883,11 +880,10 @@ const AuditForm = () => {
             type="button"
             onClick={prevSection}
             disabled={currentSection === 0}
-            className={`min-h-[44px] px-6 py-3 sm:px-4 sm:py-2 rounded-lg font-medium text-base touch-manipulation ${
-              currentSection === 0
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gray-200 text-gray-700 active:bg-gray-300 sm:hover:bg-gray-300'
-            }`}
+            className={`min-h-[44px] px-6 py-3 sm:px-4 sm:py-2 rounded-lg font-medium text-base touch-manipulation ${currentSection === 0
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-gray-200 text-gray-700 active:bg-gray-300 sm:hover:bg-gray-300'
+              }`}
           >
             Previous
           </button>

@@ -12,7 +12,7 @@ const initialSchools = [
   {
     id: 1,
     legacyId: 1,
-    name: "Government High School Bangalore North",
+    name: "Government Hostel Bangalore North",
     location: "Bangalore North, Karnataka",
     phone: "+91 80 2234 5678",
     email: "ghsblrnorth@karnataka.gov.in",
@@ -45,7 +45,7 @@ const initialSchools = [
   {
     id: 2,
     legacyId: 2,
-    name: "Government Primary School Mysore",
+    name: "Government Hostel Mysore",
     location: "Mysore, Karnataka",
     phone: "+91 821 2345 678",
     email: "gpsmysore@karnataka.gov.in",
@@ -71,7 +71,7 @@ const initialSchools = [
   {
     id: 3,
     legacyId: 3,
-    name: "Government Higher Secondary School Hubli",
+    name: "Government Hostel Hubli",
     location: "Hubli, Karnataka",
     phone: "+91 836 2456 789",
     email: "ghsshubli@karnataka.gov.in",
@@ -89,7 +89,7 @@ const initialSchools = [
   {
     id: 4,
     legacyId: 4,
-    name: "Government Primary School Mangalore",
+    name: "Government Hostel Mangalore",
     location: "Mangalore, Karnataka",
     phone: "+91 824 2567 890",
     email: "gpsmangalore@karnataka.gov.in",
@@ -370,17 +370,17 @@ const MobileEstablishmentWrapper = () => {
       setSchools((prev) =>
         prev.map((school) =>
           school.id === schoolId ||
-          school.legacyId === schoolId ||
-          String(school.id) === String(schoolId)
+            school.legacyId === schoolId ||
+            String(school.id) === String(schoolId)
             ? { ...school, photos: normalizedPhotos }
             : school
         )
       );
       setSelectedSchool((prev) =>
         prev &&
-        (prev.id === schoolId ||
-          prev.legacyId === schoolId ||
-          String(prev.id) === String(schoolId))
+          (prev.id === schoolId ||
+            prev.legacyId === schoolId ||
+            String(prev.id) === String(schoolId))
           ? { ...prev, photos: normalizedPhotos }
           : prev
       );
@@ -429,7 +429,7 @@ const MobileEstablishmentWrapper = () => {
     if (loadingSchools) {
       return (
         <div className="min-h-screen flex items-center justify-center text-gray-500">
-          Loading schools...
+          Loading hostels...
         </div>
       );
     }

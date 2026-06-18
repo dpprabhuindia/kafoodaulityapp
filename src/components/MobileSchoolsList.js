@@ -113,8 +113,8 @@ const MobileSchoolsList = ({
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search government schools..."
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-0 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all text-sm"
+              placeholder="Search government hostels..."
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-0 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all text-sm text-gray-900 placeholder-gray-500"
             />
           </div>
           <div className="flex gap-3 py-2">
@@ -168,7 +168,7 @@ const MobileSchoolsList = ({
             onClick={callAddSchool}
             className="flex-1 bg-blue-600 active:bg-blue-700 text-white py-3 rounded-xl font-semibold text-sm"
           >
-            {t("establishments.actions.addSchool") || "Add School"}
+            {t("establishments.actions.addSchool") || "Add Hostel"}
           </button>
         </div>
       </div>
@@ -184,8 +184,8 @@ const MobileSchoolsList = ({
               level === "State Level"
                 ? t("inspection.levels.state") || "State Level"
                 : level === "District Level"
-                ? t("inspection.levels.district") || "District Level"
-                : t("inspection.levels.taluk") || "Taluk Level";
+                  ? t("inspection.levels.district") || "District Level"
+                  : t("inspection.levels.taluk") || "Taluk Level";
             const ratingOrder = { A: 1, "B+": 2, B: 3, C: 4, D: 5 };
             const schoolsOfLevel = filteredSchools
               .filter((s) => s.level === level)

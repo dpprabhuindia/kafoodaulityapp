@@ -61,7 +61,7 @@ const Dashboard = () => {
   const recentInspections = [
     {
       id: 1,
-      establishment: 'Government High School Bangalore North',
+      establishment: 'Government Hostel Bangalore North',
       location: 'Bangalore North, Karnataka',
       status: 'Completed',
       date: '2024-01-15',
@@ -72,7 +72,7 @@ const Dashboard = () => {
     },
     {
       id: 2,
-      establishment: 'Government Primary School Mysore',
+      establishment: 'Government Hostel Mysore',
       location: 'Mysore, Karnataka',
       status: 'In Progress',
       date: '2024-01-12',
@@ -83,7 +83,7 @@ const Dashboard = () => {
     },
     {
       id: 3,
-      establishment: 'Government Higher Secondary School Hubli',
+      establishment: 'Government Hostel Hubli',
       location: 'Hubli, Karnataka',
       status: 'Completed',
       date: '2024-01-10',
@@ -98,19 +98,19 @@ const Dashboard = () => {
     {
       id: 1,
       type: 'warning',
-      message: 'High number of food safety violations in Bangalore district government schools',
+      message: 'High number of food safety violations in Bangalore district government Hostels',
       time: '2 hours ago'
     },
     {
       id: 2,
       type: 'info',
-      message: 'New Karnataka government school food safety certification deadline approaching',
+      message: 'New Karnataka government Hostel food safety certification deadline approaching',
       time: '4 hours ago'
     },
     {
       id: 3,
       type: 'success',
-      message: 'Monthly Karnataka government school food safety report generated successfully',
+      message: 'Monthly Karnataka government Hostel food safety report generated successfully',
       time: '1 day ago'
     }
   ];

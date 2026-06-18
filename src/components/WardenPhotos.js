@@ -14,8 +14,8 @@ import apiService from "../services/api";
 
 const isVideoUrl = (url) => {
   if (!url) return false;
-  return url.includes('/video/upload/') || 
-         /\.(mp4|webm|ogg|mov|3gp|m4v)($|\?)/i.test(url);
+  return url.includes('/video/upload/') ||
+    /\.(mp4|webm|ogg|mov|3gp|m4v)($|\?)/i.test(url);
 };
 
 const MediaItem = ({ photo, className, onClick, alt }) => {
@@ -86,7 +86,7 @@ const WardenPhotos = () => {
                 data.schoolId === selectedSchool.name ||
                 data.schoolId === `${selectedSchool.name} ()` ||
                 data.schoolId ===
-                  `${selectedSchool.name} (${selectedSchool.licenseNumber})` ||
+                `${selectedSchool.name} (${selectedSchool.licenseNumber})` ||
                 data.schoolId === selectedSchool.licenseNumber ||
                 data.schoolId === selectedSchool._id;
             }
@@ -119,12 +119,12 @@ const WardenPhotos = () => {
             prevPhotos.map((photo) =>
               photo._id === data.id
                 ? {
-                    ...photo,
-                    status: data.status,
-                    reviewNotes: data.reviewNotes,
-                    reviewedBy: data.reviewedBy,
-                    reviewedAt: data.reviewedAt,
-                  }
+                  ...photo,
+                  status: data.status,
+                  reviewNotes: data.reviewNotes,
+                  reviewedBy: data.reviewedBy,
+                  reviewedAt: data.reviewedAt,
+                }
                 : photo
             )
           );
@@ -216,7 +216,7 @@ const WardenPhotos = () => {
               photo.schoolId === selectedSchool.name ||
               photo.schoolId === `${selectedSchool.name} ()` ||
               photo.schoolId ===
-                `${selectedSchool.name} (${selectedSchool.licenseNumber})` ||
+              `${selectedSchool.name} (${selectedSchool.licenseNumber})` ||
               photo.schoolId === selectedSchool.licenseNumber ||
               photo.schoolId === selectedSchool._id
             );
@@ -460,7 +460,7 @@ const WardenPhotos = () => {
         <div className="flex items-center gap-2 mb-4">
           <Filter className="w-5 h-5 text-gray-500" />
           <h3 className="text-lg font-semibold text-gray-900">
-            Filter by School
+            Filter by Hostel
           </h3>
         </div>
 
@@ -470,7 +470,7 @@ const WardenPhotos = () => {
             onChange={(e) => setFilters({ schoolId: e.target.value })}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="">All Schools</option>
+            <option value="">All Hostels</option>
             {schools.map((school) => (
               <option key={school._id} value={school.licenseNumber}>
                 {school.name} ({school.licenseNumber})
@@ -509,7 +509,7 @@ const WardenPhotos = () => {
                     </div>
                     <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
                       <span className="capitalize">
-                         Today's {group.mealType}
+                        Today's {group.mealType}
                       </span>
                       <span>•</span>
                       <span>
@@ -613,7 +613,7 @@ const WardenPhotos = () => {
                 )}
               </div>
 
-              {/* School Info */}
+              {/* Hostel Info */}
               <div className="px-4 pb-2">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <MapPin className="w-4 h-4" />
@@ -726,9 +726,8 @@ const WardenPhotos = () => {
             ) : (
               <img
                 src={imageViewer.photos[imageViewer.currentIndex]?.photoUrl}
-                alt={`${
-                  imageViewer.photos[imageViewer.currentIndex]?.mealType
-                } meal`}
+                alt={`${imageViewer.photos[imageViewer.currentIndex]?.mealType
+                  } meal`}
                 className="max-w-full max-h-full object-contain"
                 onClick={(e) => e.stopPropagation()}
               />
@@ -817,7 +816,7 @@ const WardenPhotos = () => {
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="font-medium">School ID:</span>
+                  <span className="font-medium">Hostel ID:</span>
                   <span>{selectedPhoto.schoolId}</span>
                 </div>
 
