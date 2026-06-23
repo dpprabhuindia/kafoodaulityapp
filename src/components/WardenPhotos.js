@@ -377,6 +377,22 @@ const WardenPhotos = () => {
     }
   };
 
+  const getRelativeDay = (dateString) => {
+    if (!dateString) return "Today's";
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return "Today's";
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return "Yesterday's";
+    } else {
+      return `${date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}'s`;
+    }
+  };
+
   // Open image viewer with photos from the group
   const openImageViewer = (photo, groupPhotos) => {
     const currentIndex = groupPhotos.findIndex((p) => p._id === photo._id);
@@ -509,7 +525,7 @@ const WardenPhotos = () => {
                     </div>
                     <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
                       <span className="capitalize">
-                        Today's {group.mealType}
+                        {getRelativeDay(group.timestamp)} {group.mealType}
                       </span>
                       <span>•</span>
                       <span>
